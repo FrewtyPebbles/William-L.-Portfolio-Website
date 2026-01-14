@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum ProjectProgress {
+  PROTOTYPING
+  DEVELOPMENT
+  ALPHA
+  BETA
+  RELEASE
+}
+
+model Project {
+  id        Int      @id @default(autoincrement())
+  slug      String   @unique
+  title      String
+  progress ProjectProgress
+  contributions Contribution[]
+  nav_description String
+  short_description String
+  full_description String
+  project_sub_pages ProjectSubPage[]
+  links ProjectSubLink[]
+  images ProjectSubImage[]
+  created_at DateTime @default(now())
+}
+
+model ProjectSubImage {
+  id          Int      @id @default(autoincrement())
+  src         String
+  title       String
+  description String @default("")
+  projectID Int
+  project Project @relation(fields: [projectID], references: [id])
+}
+
+model ProjectSubLink {
+  id        Int      @id @default(autoincrement())
+  title String
+  description String @default("")
+  link String
+  projectID Int
+  project Project @relation(fields: [projectID], references: [id])
+  created_at DateTime @default(now())
+}
+
+model ProjectSubPage {
+  id        Int      @id @default(autoincrement())
+  slug      String @unique
+  title      String
+  nav_description String @default("")
+  short_description String @default("")
+  full_description String
+  projectID Int
+  project Project @relation(fields: [projectID], references: [id])
+  created_at DateTime @default(now())
+}
+
+enum ContributionLevel {
+  EXTRA_SMALL
+  SMALL
+  MEDIUM
+  LARGE
+  EXTRA_LARGE
+  EVERYTHING
+  NON_APPLICABLE
+}
+
+model Contribution {
+  id        Int      @id @default(autoincrement())
+  level ContributionLevel
+  description String
+  projectID Int
+  project   Project @relation(fields: [projectID], references: [id])
+  contributorID Int
+  contributor   Contributor @relation(fields: [contributorID], references: [id])
+  created_at DateTime @default(now())
+}
+
+model Contributor {
+  id        Int      @id @default(autoincrement())
+  name      String @unique
+  githubUserName    String @unique @default("none")
+  contributions Contribution[]
+  created_at DateTime @default(now())
+}
