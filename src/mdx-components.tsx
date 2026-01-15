@@ -53,7 +53,17 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
 
     pre: ({ children }) => (
-      <pre className="w-[calc(100%_-_var(--spacing)_*_4)] m-2 bg-gray-900 text-white p-4 rounded-md overflow-x-auto">
+      <pre className="
+        dark:bg-gray-900
+        dark:text-white
+        bg-gray-200
+        text-black
+        w-[calc(100%_-_var(--spacing)_*_4)]
+        m-2
+        p-4
+        rounded-md
+        overflow-x-auto
+      ">
         {children}
       </pre>
     ),
@@ -66,7 +76,14 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     ),
 
     blockquote: ({children}) => (
-        <blockquote className='bg-gray-700 border-l-8 border-solid border-gray-600'>
+        <blockquote className='
+          dark:bg-gray-700
+          dark:border-gray-600
+          bg-gray-300
+          border-gray-400
+          border-l-8
+          border-solid
+        '>
             {children}
         </blockquote>
     ),

@@ -11,10 +11,13 @@ export default function DropLink({link, className = ""}:Props) {
         <Link href={link.link} className={className}>
             <div className=''>
                 <div className='
-                bg-gray-900
+                dark:bg-gray-900
+                dark:hover:bg-white
+                dark:hover:text-black
+                bg-gray-300
+                hover:bg-black
+                hover:text-white
                 transition
-                hover:bg-white
-                hover:text-black
                 p-1
                 pr-2
                 rounded-sm
@@ -25,11 +28,15 @@ export default function DropLink({link, className = ""}:Props) {
                 </div>
                 <div
                 className={`
+                    dark:peer-hover:bg-white
+                    dark:peer-hover:text-black
+                    peer-hover:bg-black
+                    peer-hover:text-white
+                    bg-inherit
                     overflow-hidden
                     absolute
                     transition-all
                     duration-1000
-                    bg-inherit
                     rounded-sm
                     pr-2
                     p-1
@@ -42,8 +49,6 @@ export default function DropLink({link, className = ""}:Props) {
                     pointer-events-none
                     peer-hover:pointer-events-auto
                     peer-hover:opacity-100
-                    peer-hover:bg-white
-                    peer-hover:text-black
                 `}
                 >
                     <p className='grow'>

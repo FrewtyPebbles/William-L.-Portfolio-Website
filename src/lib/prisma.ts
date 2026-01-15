@@ -153,7 +153,7 @@ export async function seed_database() {
             }
         });
     } catch(error) {
-        console.error(error);
+        // console.error(error);
     }
   console.log("Seeded database!");
 }

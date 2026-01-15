@@ -23,9 +23,10 @@ export default function ContributorInfo({contribution}:Props) {
                 hover:-translate-x-5
             '>
                 <div className='
+                    dark:bg-gray-900
+                    bg-gray-300
                     text-xs
                     h-10
-                    bg-gray-900
                     rounded-l-full
                     translate-x-5
                     z-1
@@ -50,6 +51,8 @@ export default function ContributorInfo({contribution}:Props) {
                     src={`https://github.com/${contribution.contributor.githubUserName}.png`}
                     alt={contribution.contributor.githubUserName}
                     className='
+                    dark:border-white
+                    border-black
                     w-10
                     h-10
                     rounded-full
@@ -57,13 +60,13 @@ export default function ContributorInfo({contribution}:Props) {
                     z-2
                     border-solid
                     border
-                    border-white
                     '
                 />
                 <div className='
                     text-xs
                     h-10
-                    bg-gray-900
+                    dark:bg-gray-900
+                    bg-gray-300
                     rounded-r-full
                     z-1
                     w-0

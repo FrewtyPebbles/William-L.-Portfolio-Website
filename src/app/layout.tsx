@@ -53,11 +53,6 @@ export default async function RootLayout({
   const projects = await get_projects();
   return (
     <html lang="en" className={montserrat.variable} suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com"/>
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous"/>
-        <link href="fonts.googleapis.com" rel="stylesheet"/>
-      </head>
       <body
         className={`${montserrat.className} ${montserrat.variable} antialiased`}
       >

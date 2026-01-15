@@ -31,10 +31,13 @@ export default function ProgressIndicator({progress}:Props) {
     }
     return (
         <div className={`
-            rounded
-            text-white
+            dark:text-white
+            dark:border-white
+            text-black
+            border-black
             border-solid
             border-2
+            rounded
             mt-2
             px-2
             text-sm
@@ -45,7 +48,6 @@ export default function ProgressIndicator({progress}:Props) {
             flex-col
             justify-center
             bottom-0
-            border-white
             ${bg_color}
         `}>
             {progress}

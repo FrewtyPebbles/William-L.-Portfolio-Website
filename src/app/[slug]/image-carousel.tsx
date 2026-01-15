@@ -6,13 +6,22 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
   return (
     <div className={`relative w-full max-w-4xl mx-auto group ${className}`}>
       {/* Scroll Container */}
-      <div className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar rounded-xl">
+      <div className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar">
         {images.map((image, index) => (
           <Fragment key={index}>
             <div 
               key={index} 
               id={`slide-${index}`}
-              className="min-w-full h-fit snap-start snap-always relative aspect-video bg-black"
+              className="
+              dark:bg-black
+              bg-gray-400
+                min-w-full
+                h-fit
+                snap-start 
+                snap-always 
+                relative 
+                aspect-video 
+              "
             >
               <Image 
                 src={image.src} 
@@ -24,9 +33,10 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
               {
                 image.description === "" ? <></> :
                 <div className='
+                dark:bg-black/70
+                bg-white/70
                   absolute
                   transition-all
-                  bg-black/70
                   w-full
                   flex
                   justify-center
@@ -49,14 +59,19 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
             key={index}
             href={`#slide-${index}`}
             className="
-            w-5 h-5 rounded-full
+            dark:bg-gray-900/80
+            dark:border-gray-400/90
+            dark:hover:bg-white
+            bg-gray-300/80
+            border-white/90
+            hover:bg-white
+            hover:rounded-none
+            rounded-full
+            w-5 h-5
             mix-blend-difference
-            bg-black/80
             border-2
             border-solid
-            border-white/90
-            
-            hover:bg-white transition-all
+            transition-all
             opacity-0
             group-hover/nav:opacity-100
             "

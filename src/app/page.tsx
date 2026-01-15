@@ -12,10 +12,8 @@ export default function Home() {
             <div className="
               mt-20
               p-1
-              dark:bg-white
-              dark:text-black
-              bg-black
-              text-white
+              bg-white
+              text-black
               mix-blend-difference
             ">
               <TextTyper text="Computer Scientist"/> | <TextColorer text="Illustrator" className="pointer-events-auto"/>

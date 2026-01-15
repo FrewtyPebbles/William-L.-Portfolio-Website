@@ -2,6 +2,7 @@
 
 import { useRef, useEffect, useState, CSSProperties, ReactNode } from "react";
 import { GLSurface2D, GraphicsManager, WebGLUniformType } from "../graphics/gl-surface";
+import { usePrefersDark } from "@/lib/utils";
 
 interface LetterRendererProps {
   text: string;
@@ -147,22 +148,28 @@ export default function LetterRenderer({ text, size = 48, style, canvas_height_m
           mode
         );
 
-        color_left.b = texture(
-          u_texture,
-          distorted_uv + vec2(0.003 * cos(u_time), 0.003 * sin(u_time))
-        ).b;
-
-        color_right.r = texture(
-          u_texture,
-          distorted_uv - vec2(0.003 * cos(u_time), 0.003 * sin(u_time))
-        ).r;
-
         color = texture(
           u_texture,
           distorted_uv
         );
 
-        fragColor = color + color_left + color_right;
+        vec4 tex_left = texture(
+          u_texture,
+          distorted_uv + vec2(0.003 * cos(u_time), 0.003 * sin(u_time))
+        );
+
+        color_left.ba = color.a == 0.0 && tex_left.a != 0.0 ? vec2(1.0, 1.0) : vec2(0.0);
+
+        vec4 tex_right = texture(
+          u_texture,
+          distorted_uv - vec2(0.003 * cos(u_time), 0.003 * sin(u_time))
+        );
+
+        color_right.ra = color.a == 0.0 && tex_right.a != 0.0 ? vec2(1.0, 1.0) : vec2(0.0);
+
+        vec4 result = color + color_left + color_right;
+
+        fragColor = result;
       }
     `;
 
@@ -181,7 +188,7 @@ export default function LetterRenderer({ text, size = 48, style, canvas_height_m
       textCanvas.height = canvas_height * dpi;
       const ctx = textCanvas.getContext("2d")!;
       ctx.clearRect(0, 0, width * dpi, canvas_height * dpi);
-      ctx.fillStyle = "white";
+      ctx.fillStyle = usePrefersDark(window) ? "white" : "black";
       ctx.font = `${size * dpi}px sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -192,7 +199,7 @@ export default function LetterRenderer({ text, size = 48, style, canvas_height_m
       texture_parameters[gm.gl.TEXTURE_WRAP_S] = gm.gl.CLAMP_TO_EDGE;
       texture_parameters[gm.gl.TEXTURE_WRAP_T] = gm.gl.CLAMP_TO_EDGE;
       setTexture(gm.create_texture(textCanvas, texture_parameters, 0))
-      
+
       // textured noise
       const image = new Image();
       image.src = "/textured_noise1.jpg";
