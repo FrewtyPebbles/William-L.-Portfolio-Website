@@ -101,60 +101,75 @@ export async function seed_database() {
                 }
             }
         });
-        await prisma.project.create({
-            data: {
-                title: "A* GPS Road Navigation System",
-                slug: "a_star_gps_road_navigation_system",
-                progress: ProjectProgress.ALPHA,
-                nav_description: "A GPS road navigation system utilizing A* to navigate Open Street Map data graphs.",
-                full_description: await fs.readFile(filePath_a_star, 'utf8') as string,
-                short_description: "",
-                links: {
-                    create: [
-                        {
-                            title: "Github",
-                            link: "https://github.com/FrewtyPebbles/A-Star-GPS-Road-Navigation-System",
-                            description: "The source code repository. Tests and findings writeup included."
-                        }
-                    ]
-                },
-                images:{
-                    create: (()=>{
-                        let images = [];
-                        for (let a_star_image of a_star_images) {
-                            images.push({
-                                src: a_star_image.src,
-                                title: a_star_image.title,
-                                description: a_star_image.description
-                            });
-                        }
-                        return images;
-                    })()
-                },
-                contributions: {
-                    create: [
-                        {
-                            level:ContributionLevel.EVERYTHING,
-                            description: "Sole Contributor",
-                            contributor: {
-                                connectOrCreate: {
-                                    where: {
-                                        githubUserName: "FrewtyPebbles"
-                                    },
-                                    create: {
-                                        name: "William L.",
-                                        githubUserName: "FrewtyPebbles"
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        });
     } catch(error) {
         // console.error(error);
     }
+    // try {
+    //     await prisma.project.create({
+    //         data: {
+    //             title: "A* GPS Road Navigation System",
+    //             slug: "a_star_gps_road_navigation_system",
+    //             progress: ProjectProgress.ALPHA,
+    //             nav_description: "A GPS road navigation system utilizing A* to navigate Open Street Map data graphs.",
+    //             full_description: await fs.readFile(filePath_a_star, 'utf8') as string,
+    //             short_description: "",
+    //             links: {
+    //                 create: [
+    //                     {
+    //                         title: "Github",
+    //                         link: "https://github.com/FrewtyPebbles/A-Star-GPS-Road-Navigation-System",
+    //                         description: "The source code repository. Tests and findings writeup included."
+    //                     }
+    //                 ]
+    //             },
+    //             images:{
+    //                 create: (()=>{
+    //                     let images = [];
+    //                     for (let a_star_image of a_star_images) {
+    //                         images.push({
+    //                             src: a_star_image.src,
+    //                             title: a_star_image.title,
+    //                             description: a_star_image.description
+    //                         });
+    //                     }
+    //                     return images;
+    //                 })()
+    //             },
+    //             contributions: {
+    //                 create: [
+    //                     {
+    //                         level:ContributionLevel.EVERYTHING,
+    //                         description: "Sole Contributor",
+    //                         contributor: {
+    //                             connectOrCreate: {
+    //                                 where: {
+    //                                     githubUserName: "FrewtyPebbles"
+    //                                 },
+    //                                 create: {
+    //                                     name: "William L.",
+    //                                     githubUserName: "FrewtyPebbles"
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 ]
+    //             }
+    //         }
+    //     });
+    // } catch(error) {
+    //     // console.error(error);
+    // }
+    // try {
+    //     await prisma.resume.create({
+    //         data: {
+    //             title:"General Software Engineering",
+    //             src:"/resume.pdf",
+    //             nav_description:"This resume describes my best projects, work experience, and an exhaustive list of my software engineering skills."
+    //         }
+    //     });
+    // } catch(error) {
+    //     // console.error(error);
+    // }
   console.log("Seeded database!");
 }
 

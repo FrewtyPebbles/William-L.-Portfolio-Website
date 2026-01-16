@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Montserrat, Roboto, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/nav-bar";
-import { Project } from "@/generated/prisma";
+import { Project, Resume } from "@/generated/prisma";
 import prisma from "@/lib/prisma";
 import {  } from 'next/font/google';
 
@@ -45,12 +45,18 @@ async function get_projects():Promise<Project[]> {
   return projects;
 }
 
+async function get_resumes():Promise<Resume[]> {
+  const resumes = await prisma.resume.findMany()
+  return resumes;
+}
+
 export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   const projects = await get_projects();
+  const resumes = await get_resumes();
   return (
     <html lang="en" className={montserrat.variable} suppressHydrationWarning>
       <body
@@ -65,7 +71,7 @@ export default async function RootLayout({
         </script>
         <div className="flex flex-col h-min-screen">
           <div className="h-10"/>
-          <NavBar projects={projects} className=""/>
+          <NavBar projects={projects} resumes={resumes} className=""/>
           <main className="flex-1 w-full">
             {children}
           </main>

@@ -9,13 +9,13 @@ import {
   NavigationMenuLink,
   NavigationMenuViewport
 } from "@/components/ui/navigation-menu"
-import { Project } from "@/generated/prisma";
+import { Project, Resume } from "@/generated/prisma";
 import { useIsMobile } from "@/hooks/use-mobile";
 import Link from "next/link";
 
 // TODO: Dropdown data should come from database
 
-export function NavBar({projects, className} : {projects:Project[], className:string}) {
+export function NavBar({projects, resumes, className} : {projects:Project[], resumes:Resume[], className:string}) {
     const isMobile:boolean = useIsMobile();
 
     return (
@@ -49,12 +49,15 @@ export function NavBar({projects, className} : {projects:Project[], className:st
                 <NavigationMenuContent className="right-auto left-0">
                   <ul className="grid gap-2 sm:w-[400px] md:w-[400px] md:grid-cols-1 lg:w-[400px]">
                     {/* RESUMES */}
-                    <ListItem
-                      title={"General Software Engineering"}
-                      href={"/resume.pdf"}
-                    >
-                      This resume describes my software engineering related skills and best projects.
-                    </ListItem>
+                    {resumes.map((resume:Resume, itemKey:number) => (
+                        <ListItem
+                          key={itemKey}
+                          title={resume.title}
+                          href={resume.src}
+                        >
+                          {resume.nav_description}
+                        </ListItem>
+                      ))}
                   </ul>
                 </NavigationMenuContent>
               </NavigationMenuItem>

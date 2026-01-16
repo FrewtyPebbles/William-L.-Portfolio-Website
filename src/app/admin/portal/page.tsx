@@ -5,8 +5,13 @@ export default async function AdminDashboard() {
     orderBy: { created_at: "desc" },
   })
 
+  const resumes = await prisma.resume.findMany({
+    orderBy: { created_at: "desc" },
+  })
+
   return (
     <div>
+      {/* Projects table: */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold">Projects</h2>
         <a
@@ -16,7 +21,6 @@ export default async function AdminDashboard() {
           New Project
         </a>
       </div>
-
       <table className="w-full border">
         <thead>
           <tr className="border-b">
@@ -33,6 +37,42 @@ export default async function AdminDashboard() {
               <td className="text-right p-2">
                 <a
                   href={`/admin/portal/projects/${p.id}`}
+                  className="underline"
+                >
+                  Edit
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <hr className="border-2 m-8" />
+      {/* Resumes table: */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Resumes</h2>
+        <a
+          href="/admin/portal/resumes/new"
+          className="bg-black text-white px-4 py-2"
+        >
+          New Resume
+        </a>
+      </div>
+      <table className="w-full border">
+        <thead>
+          <tr className="border-b">
+            <th className="text-left p-2">Title</th>
+            <th>Nav Description</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {resumes.map(r => (
+            <tr key={r.id} className="border-b">
+              <td className="p-2">{r.title}</td>
+              <td>{r.nav_description}</td>
+              <td className="text-right p-2">
+                <a
+                  href={`/admin/portal/resumes/${r.id}`}
                   className="underline"
                 >
                   Edit
