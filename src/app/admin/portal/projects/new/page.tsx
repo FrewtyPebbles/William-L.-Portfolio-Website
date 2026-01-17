@@ -73,7 +73,7 @@ export default function Page({ params }: Props){
         formData.append('full_description', full_description);
         
         const response = await fetch("/api/admin/projects", {
-            method: "PUT",
+            method: "POST",
             body: formData
         });
 
@@ -84,38 +84,6 @@ export default function Page({ params }: Props){
             set_status_message(`Failed to update "${title}" project : ${data.error}`)
         }
     }
-
-    useEffect(() => {
-        async function fetchProjects(id:number) {
-            const res = await fetch("/api/admin/projects");
-            if (!res.ok) throw new Error("Failed to fetch");
-            let projects:FullProject[] = await res.json();
-            for (let project of projects) {
-                if (project.id === Number(id)) {
-                    set_project(project);
-                    let new_images = []
-                    for (let image of project.images) {
-                        new_images.push({
-                            image:image,
-                            file:null
-                        });
-                    }
-                    set_images(new_images);
-                    set_progress(project.progress);
-                    set_links(project.links);
-                    set_title(project.title);
-                    set_slug(project.slug);
-                    set_short_description(project.short_description);
-                    set_nav_description(project.nav_description);
-                    set_full_description(project.full_description);
-                    return;
-                }
-            }
-        }
-        params.then(({id}) => {
-            fetchProjects(Number(id));
-        })
-    }, [])
 
 
     if (project !== null)
