@@ -21,18 +21,83 @@ export async function GET() {
   )
 }
 
-export async function POST(req: Request) {
-  const data = await req.json()
-  return NextResponse.json(
-    await prisma.project.create({ data })
-  )
-}
-
 function required_res(field:string) {
   console.warn(`A ${field} was not included with the project, failing request.`)
   return NextResponse.json(
       { error: `A project ${field} must be supplied.` },
       { status: 400 }
+  );
+}
+
+export async function POST(req: Request) {
+  console.log(`Attempting to create project...`);
+  
+  const formData = await req.formData();
+  
+  const image_files = formData.getAll('image_files') as File[];
+
+  const images_raw = formData.getAll('images') as string[];
+  let images:ProjectSubImage[] = [];
+  for (let raw_image of images_raw) {
+    let image:ProjectSubImage = JSON.parse(raw_image);
+    if (image.src === "" || image.src === "/")
+      return required_res("image src");
+    images.push(image);
+  }
+
+  const links_raw = formData.getAll('links') as string[];
+  let links:ProjectSubLink[] = [];
+  for (let raw_link of links_raw) {
+    let link:ProjectSubLink = JSON.parse(raw_link);
+    if (link.title === "")
+      return required_res("link's title");
+    if (link.link === "")
+      return required_res("link's link field");
+    links.push(link);
+  }
+
+  const title = formData.get('title') as string;
+  const slug = formData.get('slug') as string;
+  const progress = formData.get('progress') as ProjectProgress;
+  const short_description = formData.get('short_description') as string;
+  const nav_description = formData.get('nav_description') as string;
+  const full_description = formData.get('full_description') as string;
+
+  if (title == "")
+    return required_res("title");
+
+  if (slug == "")
+    return required_res("slug");
+  
+  console.log(`Attempting to upload ${image_files.length} images`)
+  for (let file of image_files) {
+    if (file !== null) {
+      // save the new file
+      const buffer = Buffer.from(await file.arrayBuffer());
+      const destinationPath = path.join(process.cwd(), 'public', file.name);
+      await writeFile(destinationPath, buffer);
+    }
+  }
+  
+  return NextResponse.json(
+    await prisma.project.create({ data:{
+        title,
+        slug,
+        progress,
+        short_description,
+        nav_description,
+        full_description,
+        images:{
+            createMany:{
+              data:images
+            },
+        },
+        links:{
+          createMany:{
+            data:links
+          },
+        }
+    } })
   );
 }
 
@@ -105,14 +170,6 @@ export async function PUT(req: Request) {
   function check_image_exists(id:number) {
     for (let image of images) {
       if (image.id === id)
-        return true;
-    }
-    return false;
-  }
-
-  function check_link_exists(id:number) {
-    for (let link of links) {
-      if (link.id === id)
         return true;
     }
     return false;

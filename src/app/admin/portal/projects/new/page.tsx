@@ -2,12 +2,6 @@
 import { Prisma, Project, ProjectProgress, ProjectSubImage, ProjectSubLink } from '@/generated/prisma';
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 
-interface Props {
-  params: Promise<{
-    id: string;
-  }>;
-}
-
 type FullProject = Prisma.ProjectGetPayload<{
     include: {
         links: true,
@@ -29,8 +23,7 @@ const progressOptions = [
     ProjectProgress.RELEASE
 ] as const
 
-export default function Page({ params }: Props){
-    const [project, set_project] = useState<FullProject|null>(null);
+export default function Page(){
     const [images, set_images] = useState<{image:ProjectSubImage, file:File | null}[]>([]);
     const [links, set_links] = useState<ProjectSubLink[]>([]);
     const [title, set_title] = useState<string>("")
@@ -43,10 +36,7 @@ export default function Page({ params }: Props){
 
     async function onSubmit(event:FormEvent) {
         event.preventDefault();
-        const id = (await params).id;
         const formData = new FormData();
-        
-        formData.append('id', id);
 
         images.forEach((item, index) => {
             if (item.file) {
@@ -78,147 +68,142 @@ export default function Page({ params }: Props){
         });
 
         if (response.ok)
-            set_status_message(`Updated "${title}" project.`)
+            set_status_message(`Created "${title}" project (${new Date()})`)
         else if (response.status === 404) {
             const data = await response.json();
-            set_status_message(`Failed to update "${title}" project : ${data.error}`)
+            set_status_message(`Failed to create "${title}" project (${new Date()}) : ${data.error}`)
         }
     }
 
 
-    if (project !== null)
-        return (<div>
-            {project.title}
-            <form onSubmit={onSubmit}>
-                <label htmlFor="title">title : </label>
-                <input onChange={e => set_title(e.target.value)} className='admin-style' type="text" name="title" value={title}/>
-                <br />
-                <label htmlFor="slug">slug : </label>
-                <input
-                 onChange={e => set_slug(e.target.value)}
-                 className='admin-style'
-                 type="text" 
-                 name="slug" 
-                 value={slug}
-                />
-                <br />
-                <label htmlFor="progress">Progress : </label>
-                <select
-                    name='progress'
-                    className="admin-style"
-                    value={progress}
-                    onChange={e => set_progress(e.target.value as ProjectProgress)}
-                >
-                    {progressOptions.map(option => (
-                        <option key={option} value={option}>
-                        {option}
-                        </option>
-                    ))}
-                </select>
-                <br />
-                {/* IMAGES */}
-                <p>Images :</p>
-                <button
-                    className='
-                    admin-style
-                    !bg-green-500
-                    '
-                    type='button'
-                    onClick={e => {
-                        let new_images = [...images];
-                        new_images.push({
-                            image:{
-                                src: "",
-                                description: "",
-                                title: "",
-                                projectID: project.id
-                            } as ProjectSubImage,
-                            file: null
-                        });
-                        set_images(new_images);
-                    }}
-                >ADD</button>
-                <div className='flex flex-wrap'>
-                    {images.map(({image, file}, index) => (
-                        <ProjectImage 
-                            key={index} 
-                            image={{image, file}}
-                            onUpdate={(edited_image, updated_file) => {
-                                if (edited_image === null) {
-                                    // remove the image
-                                    set_images(prevImages => prevImages.filter((_, i) => i !== index));
-                                } else {
-                                    // change the image
-                                    set_images(prevImages => {
-                                        const nextImages = [...prevImages];
-                                        nextImages[index] = {
-                                            image: edited_image,
-                                            file: updated_file
-                                        };
-                                        return nextImages;
-                                    });
-                                }
-                            }}
-                        />
-                    ))}
-                </div>
-                {/* LINKS */}
-                <p>Links :</p>
-                <button
-                    className='
-                    admin-style
-                    !bg-green-500
-                    '
-                    type='button'
-                    onClick={e => {
-                        let new_links = [...links];
-                        new_links.push({
-                            title:"",
-                            description:"",
-                            link:"",
-                            projectID: project.id
-                        } as ProjectSubLink);
-                        set_links(new_links);
-                    }}
-                >ADD</button>
-                <div className='flex flex-wrap'>
-                    {links.map((link, index) => (
-                        <ProjectLink 
-                            key={index} 
-                            link={link}
-                            onUpdate={(edited_link) => {
-                                if (edited_link === null) {
-                                    // remove the image
-                                    set_links(prevLinks => prevLinks.filter((_, i) => i !== index));
-                                } else {
-                                    // change the image
-                                    set_links(prevLinks => {
-                                        const nextLinks = [...prevLinks];
-                                        nextLinks[index] = edited_link;
-                                        return nextLinks;
-                                    });
-                                }
-                            }}
-                        />
-                    ))}
-                </div>
-                <br />
-                <label htmlFor="nav_description">Nav Description : </label>
-                <textarea onChange={e => set_nav_description(e.target.value)} className='admin-style w-full' name="nav_description" value={nav_description}/>
-                <br />
-                <label htmlFor="short_description">Short Description : </label>
-                <textarea onChange={e => set_short_description(e.target.value)} className='admin-style w-full' name="short_description" value={short_description}/>
-                <br />
-                <label htmlFor="full_description">full Description .md : </label>
-                <textarea onChange={e => set_full_description(e.target.value)} className='admin-style w-full' name="full_description" value={full_description}/>
-                <br />
-                <button className='admin-style' type="submit">UPDATE</button>
-            </form>
-            {status_message}
-        </div>
-        );
-        else
-            return <>LOADING</>
+    return (<div>
+        New Project
+        <form onSubmit={onSubmit}>
+            <label htmlFor="title">title : </label>
+            <input onChange={e => set_title(e.target.value)} className='admin-style' type="text" name="title" value={title}/>
+            <br />
+            <label htmlFor="slug">slug : </label>
+            <input
+                onChange={e => set_slug(e.target.value)}
+                className='admin-style'
+                type="text" 
+                name="slug" 
+                value={slug}
+            />
+            <br />
+            <label htmlFor="progress">Progress : </label>
+            <select
+                name='progress'
+                className="admin-style"
+                value={progress}
+                onChange={e => set_progress(e.target.value as ProjectProgress)}
+            >
+                {progressOptions.map(option => (
+                    <option key={option} value={option}>
+                    {option}
+                    </option>
+                ))}
+            </select>
+            <br />
+            {/* IMAGES */}
+            <p>Images :</p>
+            <button
+                className='
+                admin-style
+                !bg-green-500
+                '
+                type='button'
+                onClick={e => {
+                    let new_images = [...images];
+                    new_images.push({
+                        image:{
+                            src: "",
+                            description: "",
+                            title: "",
+                        } as ProjectSubImage,
+                        file: null
+                    });
+                    set_images(new_images);
+                }}
+            >ADD</button>
+            <div className='flex flex-wrap'>
+                {images.map(({image, file}, index) => (
+                    <ProjectImage 
+                        key={index} 
+                        image={{image, file}}
+                        onUpdate={(edited_image, updated_file) => {
+                            if (edited_image === null) {
+                                // remove the image
+                                set_images(prevImages => prevImages.filter((_, i) => i !== index));
+                            } else {
+                                // change the image
+                                set_images(prevImages => {
+                                    const nextImages = [...prevImages];
+                                    nextImages[index] = {
+                                        image: edited_image,
+                                        file: updated_file
+                                    };
+                                    return nextImages;
+                                });
+                            }
+                        }}
+                    />
+                ))}
+            </div>
+            {/* LINKS */}
+            <p>Links :</p>
+            <button
+                className='
+                admin-style
+                !bg-green-500
+                '
+                type='button'
+                onClick={e => {
+                    let new_links = [...links];
+                    new_links.push({
+                        title:"",
+                        description:"",
+                        link:"",
+                    } as ProjectSubLink);
+                    set_links(new_links);
+                }}
+            >ADD</button>
+            <div className='flex flex-wrap'>
+                {links.map((link, index) => (
+                    <ProjectLink 
+                        key={index} 
+                        link={link}
+                        onUpdate={(edited_link) => {
+                            if (edited_link === null) {
+                                // remove the image
+                                set_links(prevLinks => prevLinks.filter((_, i) => i !== index));
+                            } else {
+                                // change the image
+                                set_links(prevLinks => {
+                                    const nextLinks = [...prevLinks];
+                                    nextLinks[index] = edited_link;
+                                    return nextLinks;
+                                });
+                            }
+                        }}
+                    />
+                ))}
+            </div>
+            <br />
+            <label htmlFor="nav_description">Nav Description : </label>
+            <textarea onChange={e => set_nav_description(e.target.value)} className='admin-style w-full' name="nav_description" value={nav_description}/>
+            <br />
+            <label htmlFor="short_description">Short Description : </label>
+            <textarea onChange={e => set_short_description(e.target.value)} className='admin-style w-full' name="short_description" value={short_description}/>
+            <br />
+            <label htmlFor="full_description">full Description .md : </label>
+            <textarea onChange={e => set_full_description(e.target.value)} className='admin-style w-full' name="full_description" value={full_description}/>
+            <br />
+            <button className='admin-style' type="submit">CREATE</button>
+        </form>
+        {status_message}
+    </div>
+    );
 }
 
 interface ProjectImageProps {

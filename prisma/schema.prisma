@@ -42,7 +42,7 @@ model ProjectSubImage {
   title       String
   description String @default("")
   projectID Int
-  project Project @relation(fields: [projectID], references: [id])
+  project Project @relation(fields: [projectID], references: [id], onDelete: Cascade)
 }
 
 model ProjectSubLink {
@@ -51,7 +51,7 @@ model ProjectSubLink {
   description String @default("")
   link String
   projectID Int
-  project Project @relation(fields: [projectID], references: [id])
+  project Project @relation(fields: [projectID], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
 }
 
@@ -63,7 +63,7 @@ model ProjectSubPage {
   short_description String @default("")
   full_description String
   projectID Int
-  project Project @relation(fields: [projectID], references: [id])
+  project Project @relation(fields: [projectID], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
 }
 
@@ -82,9 +82,9 @@ model Contribution {
   level ContributionLevel
   description String
   projectID Int
-  project   Project @relation(fields: [projectID], references: [id])
+  project   Project @relation(fields: [projectID], references: [id], onDelete: Cascade)
   contributorID Int
-  contributor   Contributor @relation(fields: [contributorID], references: [id])
+  contributor   Contributor @relation(fields: [contributorID], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
 }
 

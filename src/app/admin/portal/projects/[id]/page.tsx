@@ -78,10 +78,10 @@ export default function Page({ params }: Props){
         });
 
         if (response.ok)
-            set_status_message(`Updated "${title}" project.`)
+            set_status_message(`Updated "${title}" project (${new Date()}).`)
         else if (response.status === 404) {
             const data = await response.json();
-            set_status_message(`Failed to update "${title}" project : ${data.error}`)
+            set_status_message(`Failed to update "${title}" project (${new Date()}) : ${data.error}`)
         }
     }
 
