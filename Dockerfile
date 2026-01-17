@@ -30,6 +30,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
+VOLUME ["/app/prisma", "/app/public"]
+
 EXPOSE 3000
 ENV PORT=3000
 ENV DATABASE_URL="file:/app/prisma/dev.db"
