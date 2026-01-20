@@ -9,7 +9,7 @@ declare global {
   var prisma: PrismaClient | undefined
 }
 
-export const prisma =
+export default prisma =
   global.prisma ||
   new PrismaClient({ adapter })
 
