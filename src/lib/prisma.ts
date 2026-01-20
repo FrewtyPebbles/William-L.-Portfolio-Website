@@ -1,16 +1,15 @@
-import { PrismaClient } from '@prisma/client'
+import "dotenv/config";
+import { ContributionLevel, PrismaClient, ProjectProgress, ProjectSubImage } from '@/generated/prisma'
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3'
-import path from 'path'
+import { promises as fs } from 'fs';
+import path from 'path';
 
+// You only pass the URL; the adapter creates the 'better-sqlite3' instance for you
 const dbPath = path.resolve(process.cwd(), "database", 'dev.db')
-const adapter = new PrismaBetterSqlite3({ url: `file:${dbPath}` })
+const adapter = new PrismaBetterSqlite3({ 
+  url: `file:${dbPath}` as string
+})
 
-declare global {
-  var prisma: PrismaClient | undefined
-}
+const prisma = new PrismaClient({ adapter })
 
-export default prisma =
-  global.prisma ||
-  new PrismaClient({ adapter })
-
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma
+export default prisma
