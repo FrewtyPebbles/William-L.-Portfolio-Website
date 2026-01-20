@@ -24,8 +24,8 @@ RUN npx prisma db push --accept-data-loss
 # Build the application
 RUN npm run build
 
-# Remove the temporary database (it won't be in the final image)
-RUN rm -rf /app/database
+# Only remove the database file, keep node_modules intact
+RUN rm -f /app/database/dev.db
 
 # Stage 3: Runner
 FROM node:24-alpine AS runner
