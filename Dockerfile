@@ -11,11 +11,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# SQLite Build Setup
-ENV DATABASE_URL="file:/app/database/dev.db"
-RUN mkdir -p /app/database
+# Generate Prisma Client only (don't create/push database at build time)
 RUN npx prisma generate
-RUN npx prisma db push --accept-data-loss
 RUN npm run build
 
 # Stage 3: Runner
@@ -29,6 +26,11 @@ RUN mkdir -p prisma
 COPY --from=builder /app/public ./public_seed
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+# Copy Prisma schema and migrations for runtime database setup
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh

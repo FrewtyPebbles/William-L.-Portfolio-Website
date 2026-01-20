@@ -16,5 +16,15 @@ else
   echo "Public volume already has files, skipping copy."
 fi
 
+# Initialize database if it doesn't exist
+DB_FILE="/app/database/dev.db"
+if [ ! -f "$DB_FILE" ]; then
+  echo "Database not found. Initializing database..."
+  npx prisma db push --accept-data-loss --skip-generate
+  echo "Database initialized successfully."
+else
+  echo "Database already exists, skipping initialization."
+fi
+
 # Start the app
 exec "$@"
