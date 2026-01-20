@@ -16,7 +16,7 @@ RUN mkdir -p /app/database
 
 # Generate Prisma Client and create temporary database for build
 RUN npx prisma generate
-RUN npx prisma db push --accept-data-loss --skip-generate
+RUN npx prisma db push --accept-data-loss
 
 # Build the application
 RUN npm run build

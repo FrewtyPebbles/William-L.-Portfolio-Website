@@ -20,7 +20,7 @@ fi
 DB_FILE="/app/database/dev.db"
 if [ ! -f "$DB_FILE" ]; then
   echo "Database not found. Initializing database..."
-  npx prisma db push --accept-data-loss --skip-generate
+  npx prisma db push --accept-data-loss
   echo "Database initialized successfully."
 else
   echo "Database already exists, skipping initialization."
