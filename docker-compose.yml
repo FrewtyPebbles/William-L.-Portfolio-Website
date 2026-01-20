@@ -16,6 +16,20 @@ services:
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - ADMIN_COOKIE_SECRET=${ADMIN_COOKIE_SECRET}
     restart: always
+    
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    restart: always
+    depends_on:
+      - web
+
 
 volumes:
   # Define the named volume for persistence
