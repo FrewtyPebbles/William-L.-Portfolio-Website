@@ -6,17 +6,17 @@ services:
       - "3000:3000"
     volumes:
       # Maps the named volume 'sqlite_data' to the prisma folder in the container
-      - sqlite_data:/app/prisma
+      - sqlite_data:/app/database
       - public_files:/app/public
     environment:
       # Ensure the app looks for the DB file in the mounted volume path
-      - DATABASE_URL=file:/app/prisma/dev.db
+      - DATABASE_URL=file:/app/database/dev.db
       - NODE_ENV=production
       - NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
       - ADMIN_PASSWORD=${ADMIN_PASSWORD}
       - ADMIN_COOKIE_SECRET=${ADMIN_COOKIE_SECRET}
     restart: always
-    
+
   nginx:
     image: nginx:latest
     ports:

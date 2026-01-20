@@ -12,7 +12,6 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # SQLite Build Setup
-ENV DATABASE_URL="file:/app/prisma/dev.db"
 RUN npx prisma generate
 RUN npx prisma db push --accept-data-loss
 RUN npm run build
@@ -33,10 +32,8 @@ COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 ENTRYPOINT ["/entrypoint.sh"]
 
-VOLUME ["/app/prisma", "/app/public"]
-
 EXPOSE 3000
 ENV PORT=3000
-ENV DATABASE_URL="file:/app/prisma/dev.db"
+ENV DATABASE_URL="file:/app/database/dev.db"
 
 CMD ["node", "server.js"]
