@@ -20,6 +20,8 @@ fi
 DB_FILE="/app/database/dev.db"
 if [ ! -f "$DB_FILE" ]; then
   echo "Database not found. Initializing database..."
+  # Generate Prisma client and push schema
+  npx prisma generate
   npx prisma db push --accept-data-loss
   echo "Database initialized successfully."
 else

@@ -40,10 +40,8 @@ COPY --from=builder /app/public ./public_seed
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
 
-# Copy Prisma schema and migrations for runtime database setup
+# Copy Prisma schema for runtime database setup
 COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
