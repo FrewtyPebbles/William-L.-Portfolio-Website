@@ -25,10 +25,13 @@ ENV NODE_ENV=production
 RUN mkdir -p prisma
 
 # Copy essential files
-COPY --from=builder /app/prisma/dev.db ./prisma/dev.db
-COPY --from=builder /app/public ./public
+COPY --from=builder /app/public ./public_seed
 COPY --from=builder /app/.next/standalone ./
 COPY --from=builder /app/.next/static ./.next/static
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 VOLUME ["/app/prisma", "/app/public"]
 
