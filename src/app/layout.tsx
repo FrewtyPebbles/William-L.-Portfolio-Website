@@ -40,6 +40,9 @@ export const metadata: Metadata = {
   description: "William L's projects and resume",
 };
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 async function get_projects():Promise<Project[]> {
   const projects = await prisma.project.findMany()
   return projects;
