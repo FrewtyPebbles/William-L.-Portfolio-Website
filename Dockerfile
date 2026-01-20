@@ -12,6 +12,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 # SQLite Build Setup
+ENV DATABASE_URL="file:/app/database/dev.db"
+RUN mkdir -p /app/database
 RUN npx prisma generate
 RUN npx prisma db push --accept-data-loss
 RUN npm run build
