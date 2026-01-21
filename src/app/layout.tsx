@@ -72,7 +72,7 @@ export default async function RootLayout({
             "}"
           }
         </script>
-        <div className="flex flex-col h-min-screen">
+        <div className="flex flex-col min-h-screen">
           <div className="h-10"/>
           <NavBar projects={projects} resumes={resumes} className=""/>
           <main className="flex-1 w-full">

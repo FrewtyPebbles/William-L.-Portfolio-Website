@@ -19,12 +19,17 @@ export function NavBar({projects, resumes, className} : {projects:Project[], res
     const isMobile:boolean = useIsMobile();
 
     return (
-        <div className={`fixed top-0 flex w-full h-10 bg-white dark:bg-black justify-between items-center ${className}`}>
+        <div className={`z-100 fixed top-0 flex w-full h-10 bg-white dark:bg-black justify-between items-center ${className}`}>
           <NavigationMenu viewport={isMobile} className="dark:bg-black">
             <NavigationMenuList className="flex-wrap bg-inherit">
                 <NavigationMenuItem className="bg-inherit">
                     <NavigationMenuLink asChild className="bg-inherit">
                         <Link href="/">Home</Link>
+                    </NavigationMenuLink>
+                </NavigationMenuItem>
+                <NavigationMenuItem className="bg-inherit">
+                    <NavigationMenuLink asChild className="bg-inherit">
+                        <Link href="/about">About</Link>
                     </NavigationMenuLink>
                 </NavigationMenuItem>
                 <NavigationMenuItem>
@@ -36,7 +41,7 @@ export function NavBar({projects, resumes, className} : {projects:Project[], res
                         <ListItem
                           key={itemKey}
                           title={project.title}
-                          href={project.slug}
+                          href={"/projects/" + project.slug}
                         >
                           {project.nav_description}
                         </ListItem>
