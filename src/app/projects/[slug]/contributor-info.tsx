@@ -20,6 +20,7 @@ export default function ContributorInfo({contribution}:Props) {
             <div className='
                 flex
                 h-10
+                min-w-10
                 hover:-translate-x-5
             '>
                 <div className='

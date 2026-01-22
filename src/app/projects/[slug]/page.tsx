@@ -58,7 +58,7 @@ export default async function ProjectPage({ params }: PageProps) {
   return (
     <div className='
       h-min-full w-full top-10 w-screen
-      absolute left-0 z-[-1]
+      absolute left-0
       flex-1 dark:bg-black  bg-white
        pointer-events-auto
     '>
@@ -77,6 +77,7 @@ export default async function ProjectPage({ params }: PageProps) {
           p-1
           flex
           gap-2
+          flex-wrap
           '>
             {/* Links */}
             {project.links.map((link, link_index) => {
@@ -84,7 +85,7 @@ export default async function ProjectPage({ params }: PageProps) {
             })}
           </div>
           <div className='
-            flex-1
+            w-fit
             flex
             gap-2
             justify-end
