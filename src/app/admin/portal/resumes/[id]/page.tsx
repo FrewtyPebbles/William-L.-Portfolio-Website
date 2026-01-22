@@ -74,7 +74,7 @@ export default function Page({ params }: Props) {
                     if (e.target.files && e.target.files.length == 1) {
                         const selected_file = e.target.files[0]
                         set_file(selected_file)
-                        set_src(`/${selected_file.name}`)
+                        set_src(`/uploads/${selected_file.name}`)
                     }
                 }} type="file" name="file" />
                 <br />

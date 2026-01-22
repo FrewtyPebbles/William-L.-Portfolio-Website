@@ -74,7 +74,7 @@ export async function POST(req: Request) {
     if (file !== null) {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
-      const destinationPath = path.join(process.cwd(), 'public', file.name);
+      const destinationPath = path.join(process.cwd(), 'public', 'uploads', file.name);
       await writeFile(destinationPath, buffer);
     }
   }
@@ -187,12 +187,13 @@ export async function PUT(req: Request) {
       }
     }
   }
+  
   console.log(`Attempting to upload ${image_files.length} images`)
   for (let file of image_files) {
     if (file !== null) {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
-      const destinationPath = path.join(process.cwd(), 'public', file.name);
+      const destinationPath = path.join(process.cwd(), 'public', 'uploads', file.name);
       await writeFile(destinationPath, buffer);
     }
   }
@@ -251,6 +252,39 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   const { id } = await req.json()
+
+  const project = await prisma.project.findFirst({
+    where: {
+      id
+    },
+    include: {
+      contributions: {
+          include: {
+          contributor: true, // fetch the contributor for each contribution
+          },
+      },
+      links: true,
+      images: true,
+      project_sub_pages: true,
+    },
+  });
+
+  if (!project) {
+    return NextResponse.json(
+      { error: 'The requested project does not exist.' },
+      { status: 404 }
+    );
+  }
+
+  for (let image of project.images ? project.images : []) {
+    const fullOldPath = path.join(process.cwd(), 'public', image.src);
+    try {
+        console.log(`Deleting old image file : ${fullOldPath}`);
+        await unlink(fullOldPath);
+    } catch (err) {
+        console.warn(err);
+    }
+  }
   await prisma.project.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }

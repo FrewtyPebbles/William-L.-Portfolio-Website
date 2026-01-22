@@ -120,6 +120,21 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
   const { id } = await req.json()
+  const resume = await prisma.resume.findFirst({ where: {id}});
+  if (!resume) {
+    return NextResponse.json(
+      { error: 'The requested resume does not exist.' },
+      { status: 404 }
+    );
+  }
+
+  const fullOldPath = path.join(process.cwd(), 'public', resume.src);
+  try {
+      await unlink(fullOldPath);
+  } catch (err) {
+      console.warn("Old file not found, skipping deletion");
+  }
+
   await prisma.resume.delete({ where: { id } })
   return NextResponse.json({ ok: true })
 }
