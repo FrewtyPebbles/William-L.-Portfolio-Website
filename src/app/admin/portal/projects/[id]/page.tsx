@@ -155,7 +155,7 @@ export default function Page({ params }: Props){
                 <button
                     className='
                     admin-style
-                    !bg-green-500
+                    bg-green-500!
                     '
                     type='button'
                     onClick={e => {

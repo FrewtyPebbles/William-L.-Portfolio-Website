@@ -2,6 +2,7 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import crypto from "crypto"
+import { is_prod } from "@/lib/utils"
 
 export async function POST(req: Request) {
   try {
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
     const cookieStore = await cookies()
     cookieStore.set("admin_auth", `${payload}.${signature}`, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: is_prod(),
       sameSite: "strict",
       path: "/",
       maxAge: 60 * 60 * 24, // 24 hours

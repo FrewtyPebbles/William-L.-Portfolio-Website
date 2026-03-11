@@ -12,7 +12,7 @@ export function ProjectImage({image:{image, file}, onUpdate}:ProjectImageProps) 
         if (e.target.files && e.target.files.length == 1) {
             const selected_file = e.target.files[0]
             file = selected_file
-            image.src = `/uploads/${selected_file.name}`
+            image.src = `${selected_file.name}`
             onUpdate(image, file);
         }
     }

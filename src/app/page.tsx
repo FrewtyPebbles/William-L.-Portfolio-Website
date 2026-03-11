@@ -24,6 +24,7 @@ export default function Home() {
                 text-white
                 backdrop-blur-xs
                 rounded-sm
+                
               ">
                 <TextTyper text="Computer Scientist"/> | <TextColorer text="Illustrator" className="pointer-events-auto"/>
               </div>
@@ -82,7 +83,7 @@ export default function Home() {
                       "
                   >
                     <div className="h-fit">
-                      Where am I?
+                      About Me
                     </div>
                   </a>
                 </div>

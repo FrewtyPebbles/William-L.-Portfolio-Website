@@ -1,6 +1,6 @@
 "use client"
-import { Resume } from '@/generated/prisma';
-import React, { FormEvent, useEffect, useState } from 'react';
+import { PublicFile } from '@/generated/prisma';
+import React, { useEffect, useState } from 'react';
 
 interface Props {
   params: Promise<{
@@ -9,14 +9,14 @@ interface Props {
 }
 
 export default function Page({ params }: Props) {
-    const [resume, set_resume] = useState<Resume|null>(null);
+    const [public_file, set_public_file] = useState<PublicFile|null>(null);
     const [title, set_title] = useState<string>("")
     const [src, set_src] = useState<string>("")
     const [file, set_file] = useState<File|null>(null)
-    const [nav_description, set_nav_description] = useState<string>("")
+    const [tool_tip, set_tool_tip] = useState<string>("")
     const [status_message, set_status_message] = useState<string>("")
 
-    async function onSubmit(event:FormEvent) {
+    async function onSubmit(event:React.SubmitEvent) {
         event.preventDefault();
         const id = (await params).id;
         const formData = new FormData();
@@ -28,48 +28,48 @@ export default function Page({ params }: Props) {
 
         formData.append('title', title);
         formData.append('src', src);
-        formData.append('nav_description', nav_description);
+        formData.append('tool_tip', tool_tip);
         
-        const response = await fetch("/api/admin/resumes", {
+        const response = await fetch("/api/admin/public_files", {
             method: "PUT",
             body: formData
         });
 
         if (response.ok)
-            set_status_message(`Updated "${title}" resume.`)
+            set_status_message(`Updated "${title}" public file.`)
         else if (response.status === 404) {
             const data = await response.json();
-            set_status_message(`Failed to update "${title}" resume : ${data.error}`)
+            set_status_message(`Failed to update "${title}" public file : ${data.error}`)
         }
     }
 
     useEffect(() => {
-            async function fetchResumes(id:number) {
-                const res = await fetch("/api/admin/resumes");
+            async function fetchPublicFiles(id:number) {
+                const res = await fetch("/api/admin/public_files");
                 if (!res.ok) throw new Error("Failed to fetch");
-                let resumes:Resume[] = await res.json();
-                for (let resume of resumes) {
-                    if (resume.id === Number(id)) {
-                        set_resume(resume)
-                        set_title(resume.title);
-                        set_src(resume.src);
-                        set_nav_description(resume.nav_description);
+                let public_files:PublicFile[] = await res.json();
+                for (let public_file of public_files) {
+                    if (public_file.id === Number(id)) {
+                        set_public_file(public_file)
+                        set_title(public_file.title);
+                        set_src(public_file.src);
+                        set_tool_tip(public_file.tool_tip);
                         return;
                     }
                 }
             }
             params.then(({id}) => {
-                fetchResumes(Number(id));
+                fetchPublicFiles(Number(id));
             })
         }, [])
 
     return (
         <div>
-            {resume?.title}
+            {public_file?.title}
             <form onSubmit={onSubmit}>
                 SRC : {src}
                 <br />
-                <label htmlFor="file">Resume File (.pdf preferred) : </label>
+                <label htmlFor="file">Public File File : </label>
                 <input className='admin-style' onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                     if (e.target.files && e.target.files.length == 1) {
                         const selected_file = e.target.files[0]
@@ -79,10 +79,10 @@ export default function Page({ params }: Props) {
                 }} type="file" name="file" />
                 <br />
                 <label htmlFor="title">Title : </label>
-                <input type="text" onChange={e => set_title(e.target.value)} className='admin-style' name="nav_description" value={title}/>
+                <input type="text" onChange={e => set_title(e.target.value)} className='admin-style' name="tool_tip" value={title}/>
                 <br />
-                <label htmlFor="nav_description">Nav Description : </label>
-                <textarea onChange={e => set_nav_description(e.target.value)} className='admin-style w-full' name="nav_description" value={nav_description}/>
+                <label htmlFor="tool_tip">Tool Tip : </label>
+                <textarea onChange={e => set_tool_tip(e.target.value)} className='admin-style w-full' name="tool_tip" value={tool_tip}/>
                 <br />
                 <button className='admin-style' type="submit">UPDATE</button>
             </form>

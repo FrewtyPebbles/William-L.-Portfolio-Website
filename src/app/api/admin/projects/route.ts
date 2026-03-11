@@ -3,6 +3,8 @@ import { NextResponse } from "next/server"
 import path from "path"
 import { writeFile, unlink } from 'fs/promises';
 import { ProjectProgress, ProjectSubImage, ProjectSubLink } from "@/generated/prisma";
+import { is_prod } from "@/lib/utils";
+import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
 
 export async function GET() {
   return NextResponse.json(
@@ -74,8 +76,13 @@ export async function POST(req: Request) {
     if (file !== null) {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
-      const destinationPath = path.join(process.cwd(), 'public', 'uploads', file.name);
-      await writeFile(destinationPath, buffer);
+      const relative_path = `public/uploads/${file.name}`;
+      if (is_prod()) {
+        await s3_upload_file(relative_path, buffer);
+      } else {
+        const destinationPath = path.join(process.cwd(), relative_path);
+        await writeFile(destinationPath, buffer);
+      }
     }
   }
   
@@ -178,12 +185,17 @@ export async function PUT(req: Request) {
   for (let image of project.images) {
     if (!check_image_exists(image.id)) {
       // delete the old file
-      const fullOldPath = path.join(process.cwd(), 'public', image.src);
-      try {
-          console.log(`Deleting old image file : ${fullOldPath}`);
-          await unlink(fullOldPath);
-      } catch (err) {
-          console.warn(err);
+      const relative_old_path = `public/uploads/${image.src}`;
+      if (is_prod()) {
+        await s3_delete_file(relative_old_path)
+      } else {
+        const fullOldPath = path.join(process.cwd(), relative_old_path);
+        try {
+            console.log(`Deleting old image file : ${fullOldPath}`);
+            await unlink(fullOldPath);
+        } catch (err) {
+            console.warn(err);
+        }
       }
     }
   }
@@ -193,8 +205,13 @@ export async function PUT(req: Request) {
     if (file !== null) {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
-      const destinationPath = path.join(process.cwd(), 'public', 'uploads', file.name);
-      await writeFile(destinationPath, buffer);
+      const relative_path = `public/uploads/${file.name}`;
+      if (is_prod()) {
+        await s3_upload_file(relative_path, buffer);
+      } else {
+        const destinationPath = path.join(process.cwd(), relative_path);
+        await writeFile(destinationPath, buffer);
+      }
     }
   }
   
@@ -277,12 +294,17 @@ export async function DELETE(req: Request) {
   }
 
   for (let image of project.images ? project.images : []) {
-    const fullOldPath = path.join(process.cwd(), 'public', image.src);
-    try {
-        console.log(`Deleting old image file : ${fullOldPath}`);
-        await unlink(fullOldPath);
-    } catch (err) {
-        console.warn(err);
+    const relative_path = `public/uploads/${image.src}`;
+    if (is_prod()) {
+      await s3_delete_file(relative_path);
+    } else {
+      const fullOldPath = path.join(process.cwd(), relative_path);
+      try {
+          console.log(`Deleting old image file : ${fullOldPath}`);
+          await unlink(fullOldPath);
+      } catch (err) {
+          console.warn(err);
+      }
     }
   }
   await prisma.project.delete({ where: { id } })

@@ -1,5 +1,6 @@
 import type { MDXComponents } from 'mdx/types'
 import Image from 'next/image';
+import { get_asset_url } from './lib/utils';
 
 // This function is required to use MDX with the App Router
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -45,7 +46,7 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
           fill
           className="object-contain" // Keeps black borders if aspect ratio differs
           sizes="(max-width: 768px) 100vw, 800px" // Improves performance
-          src={props.src}
+          src={get_asset_url(props.src)}
           {...props}
           alt={props.alt || "MDX Image"} // Fixes missing alt warning
         />

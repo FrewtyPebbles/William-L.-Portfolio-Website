@@ -2,6 +2,8 @@
 // npm install --save-dev prisma dotenv
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
+import OUTPUTS, { TerraformOutputs } from "@/lib/terraform_outputs";
+import { is_prod } from "@/lib/utils";
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -9,6 +11,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"],
+    url: is_prod() ? (OUTPUTS as TerraformOutputs).database_url : process.env["DATABASE_URL"],
   },
 });

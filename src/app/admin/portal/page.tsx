@@ -7,7 +7,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Project, Resume } from "@/generated/prisma";
+import { Project, PublicFile, Resume } from "@/generated/prisma";
 import { useEffect, useState } from "react";
 
 interface ConfirmDialogProps {
@@ -49,12 +49,18 @@ function ConfirmDialog({
 export default function AdminDashboard() {
   const [projects, set_projects] = useState<Project[]>([])
   const [resumes, set_resumes] = useState<Resume[]>([])
+  const [public_files, set_public_files] = useState<PublicFile[]>([])
   const [delete_dialog_project, set_delete_dialog_project] = useState<{
     name:string,
     id:number
   }|null>(null);
 
   const [delete_dialog_resume, set_delete_dialog_resume] = useState<{
+    name:string,
+    id:number
+  }|null>(null);
+
+  const [delete_dialog_public_file, set_delete_dialog_public_file] = useState<{
     name:string,
     id:number
   }|null>(null);
@@ -71,6 +77,13 @@ export default function AdminDashboard() {
       if (res.ok) {
         let json = await res.json();
         set_resumes(json);
+      }
+    });
+
+    fetch("/api/admin/public_files").then(async (res) => {
+      if (res.ok) {
+        let json = await res.json();
+        set_public_files(json);
       }
     });
   }, [delete_dialog_resume === null, delete_dialog_project === null]);
@@ -105,6 +118,21 @@ export default function AdminDashboard() {
     });
   }
 
+  function delete_public_file(id:number) {
+    fetch("/api/admin/public_files", {
+      method:"DELETE",
+      body:JSON.stringify({
+        id:id
+      })
+    }).then(res => {
+      if (res.ok) {
+        set_delete_dialog_public_file(null);
+      } else {
+        console.error("Failed to delete public file.");
+      }
+    });
+  }
+
   return (
     <div>
       <ConfirmDialog 
@@ -120,6 +148,13 @@ export default function AdminDashboard() {
         onYes={() => delete_dialog_resume !== null ? 
           delete_resume(delete_dialog_resume?.id) : null}
         onNo={() => set_delete_dialog_resume(null)}
+      />
+      <ConfirmDialog 
+        open={delete_dialog_public_file !== null}
+        title={`Are you sure you want to delete ${delete_dialog_public_file?.name}?`}
+        onYes={() => delete_dialog_public_file !== null ? 
+          delete_public_file(delete_dialog_public_file?.id) : null}
+        onNo={() => set_delete_dialog_public_file(null)}
       />
       {/* Projects table: */}
       <div className="flex justify-between items-center mb-6">
@@ -203,6 +238,51 @@ export default function AdminDashboard() {
               <td className="text-right p-2">
                 <a
                   href={`/admin/portal/resumes/${r.id}`}
+                  className="underline"
+                >
+                  Edit
+                </a>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {/* Public Files table: */}
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">Public Files</h2>
+        <a
+          href="/admin/portal/public_files/new"
+          className="bg-black text-white px-4 py-2"
+        >
+          New Public File
+        </a>
+      </div>
+      <table className="w-full border">
+        <thead>
+          <tr className="border-b">
+            <th />
+            <th className="text-left p-2">Title</th>
+            <th>Tool Tip</th>
+            <th />
+          </tr>
+        </thead>
+        <tbody>
+          {public_files.map(pf => (
+            <tr key={pf.id} className="border-b">
+              <td>
+                <button 
+                  type="button" 
+                  className="bg-red-500 hover:bg-red-700 p-2 hover:cursor-pointer"
+                  onClick={e => set_delete_dialog_public_file({name: pf.title, id: pf.id})}
+                >
+                  X
+                </button>
+              </td>
+              <td className="p-2">{pf.title}</td>
+              <td>{pf.tool_tip}</td>
+              <td className="text-right p-2">
+                <a
+                  href={`/admin/portal/public_files/${pf.id}`}
                   className="underline"
                 >
                   Edit

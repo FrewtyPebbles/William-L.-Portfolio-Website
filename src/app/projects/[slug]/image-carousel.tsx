@@ -1,5 +1,7 @@
 import { ProjectSubImage } from '@/generated/prisma';
+import { get_asset_url } from '@/lib/utils';
 import Image from 'next/image';
+import path from 'path';
 import { Fragment } from 'react/jsx-runtime';
 
 export default function ImageCarousel({ images, className = "" }: { images: ProjectSubImage[], className?:string }) {
@@ -24,7 +26,7 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
               "
             >
               <Image 
-                src={image.src} 
+                src={get_asset_url(image.src)} 
                 alt={`Slide ${index}`} 
                 fill 
                 className="object-contain peer" 
