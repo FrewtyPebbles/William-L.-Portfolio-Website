@@ -9,7 +9,7 @@ resource "aws_rds_cluster" "portfolio_db" {
   engine_mode        = "provisioned"
   engine_version     = "16.3"
   database_name      = "portfoliodb"
-  master_username    = "postgres"
+  master_username    = var.database_username
   master_password    = var.database_password
 
   vpc_security_group_ids = [aws_security_group.rds_sg.id]

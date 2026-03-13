@@ -1,6 +1,6 @@
 import type { MDXComponents } from 'mdx/types'
 import Image from 'next/image';
-import { get_asset_url } from './lib/utils';
+import { get_asset_url } from './lib/server-utils';
 
 // This function is required to use MDX with the App Router
 export function useMDXComponents(components: MDXComponents): MDXComponents {

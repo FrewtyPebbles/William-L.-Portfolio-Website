@@ -2,7 +2,7 @@
 import { NextResponse } from "next/server"
 import { cookies } from "next/headers"
 import crypto from "crypto"
-import { is_prod } from "@/lib/utils"
+import { is_prod } from "@/lib/server-utils"
 
 export async function POST(req: Request) {
   try {

@@ -1,0 +1,34 @@
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: portfolio_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+  web:
+    build:
+      context: .
+    ports:
+      - "80:3000"
+    volumes:
+      - public_files:/app/public
+    environment:
+      # Ensure the app looks for the DB file in the mounted volume path
+      TF_VAR_database_username: user
+      TF_VAR_database_password: password
+      DATABASE_URL: postgresql://user:password@db:5432/portfolio_db
+      ENVIRONMENT: dev
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+      ADMIN_COOKIE_SECRET: ${ADMIN_COOKIE_SECRET}
+    restart: always
+
+
+volumes:
+  # Define the named volume for persistence
+  postgres_data:
+  public_files:

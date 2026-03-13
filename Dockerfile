@@ -1,54 +1,92 @@
-# Stage 1: Install dependencies
-FROM node:24-alpine AS deps
-RUN apk add --no-cache libc6-compat
+# USE BUILDKIT
+ARG ENVIRONMENT=prod
+# DEPENDENCIES STAGE
+FROM node:lts-slim AS base
+
+ARG ENVIRONMENT
+
+RUN apt-get update && apt-get install -y \
+    gnupg \
+    software-properties-common \
+    curl \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl https://apt.releases.hashicorp.com/gpg | gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+RUN echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | tee /etc/apt/sources.list.d/hashicorp.list
+RUN apt update && apt install terraform -y
+
 WORKDIR /app
 COPY package.json package-lock.json* ./
+COPY public ./public
+
+# install npm package dependencies
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
 RUN npm ci
 
-# Stage 2: Build the application
-FROM node:24-alpine AS builder
-WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+FROM base AS base_build
+
 COPY . .
 
-# Set DATABASE_URL for build
-ENV DATABASE_URL="file:/app/database/dev.db"
+ENV ENVIRONMENT=${ENVIRONMENT}
 
-# Create temporary database directory for build
-RUN mkdir -p /app/database
+RUN terraform -chdir=terraform init
 
-# Generate Prisma Client and create temporary database for build
+# DEV ENVIRONMENT BUILD STAGE
+FROM base_build AS dev_build
+
 RUN npx prisma generate
-RUN npx prisma db push --accept-data-loss
+
+# This will only be used in dev
+# since we dont want to override the db in prod
+RUN npx prisma db push
+
 
 # Build the application
 RUN npm run build
 
-# Only remove the database file, keep node_modules intact
-RUN rm -f /app/database/dev.db
+# PROD ENVIRONMENT BUILD STAGE
+FROM base_build AS prod_build
 
-# Stage 3: Runner
-FROM node:24-alpine AS runner
+RUN npx prisma generate
+# Build the application
+RUN npm run build
+
+# ENVIRONMENT SELECTOR STAGE
+FROM ${ENVIRONMENT}_build AS final_build
+
+# RUNTIME STAGE
+FROM node:lts-slim AS base_runtime
+
 WORKDIR /app
-ENV NODE_ENV=production
+COPY --from=final_build /app/.next/standalone ./
+COPY --from=final_build /app/.next/static ./.next/static
+COPY --from=final_build /app/public ./public
 
-# Create database directory for volume mount
+# DEV RUNTIME
+FROM base_runtime AS dev_runtime
+
 RUN mkdir -p /app/database
 
-# Copy essential files
-COPY --from=builder /app/public ./public_seed
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+COPY --from=final_build /app/prisma/dev_migrations ./prisma/dev_migrations
+COPY --from=final_build /app/prisma/schema.dev.prisma ./prisma/schema.dev.prisma
+COPY --from=final_build /app/database/dev.db ./database/dev.db
 
-# Copy Prisma schema for runtime database setup
-COPY --from=builder /app/prisma ./prisma
+# PROD RUNTIME
+FROM base_runtime AS prod_runtime
 
-COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+COPY --from=final_build /app/prisma/prod_migrations ./prisma/prod_migrations
+COPY --from=final_build /app/prisma/schema.prod.prisma ./prisma/schema.prod.prisma
+
+# FINAL RUNTIME STAGE
+FROM ${ENVIRONMENT}_runtime AS runtime
 
 EXPOSE 3000
 ENV PORT=3000
-ENV DATABASE_URL="file:/app/database/dev.db"
 
-CMD ["node", "server.js"]
+CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.${ENVIRONMENT}.prisma", "&&", "node", "server.js"]

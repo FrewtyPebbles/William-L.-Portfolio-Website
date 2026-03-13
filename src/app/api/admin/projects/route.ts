@@ -3,7 +3,7 @@ import { NextResponse } from "next/server"
 import path from "path"
 import { writeFile, unlink } from 'fs/promises';
 import { ProjectProgress, ProjectSubImage, ProjectSubLink } from "@/generated/prisma";
-import { is_prod } from "@/lib/utils";
+import { is_prod } from "@/lib/server-utils";
 import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
 
 export async function GET() {
