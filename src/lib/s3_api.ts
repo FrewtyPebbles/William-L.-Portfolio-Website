@@ -49,3 +49,7 @@ export async function s3_get_file(fileName:string): Promise<GetObjectCommandOutp
     return null;
   }
 }
+
+export function get_asset_s3_url(file_name:string):string {
+  return `/uploads/${file_name}`
+}

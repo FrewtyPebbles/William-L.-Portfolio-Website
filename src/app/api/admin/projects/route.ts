@@ -4,7 +4,7 @@ import path from "path"
 import { writeFile, unlink } from 'fs/promises';
 import { ProjectProgress, ProjectSubImage, ProjectSubLink } from "@/generated/prisma";
 import { is_prod } from "@/lib/server-utils";
-import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
+import { get_asset_s3_url, s3_delete_file, s3_upload_file } from "@/lib/s3_api";
 import { get_asset_url } from "@/lib/utils";
 
 export async function GET() {
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   
   const formData = await req.formData();
   
-  const image_files = formData.getAll('image_files') as File[];
+  const image_files = formData.getAll('image_files') as (File | "null")[];
 
   const images_raw = formData.getAll('images') as string[];
   let images:ProjectSubImage[] = [];
@@ -74,12 +74,12 @@ export async function POST(req: Request) {
   
   console.log(`Attempting to upload ${image_files.length} images`)
   for (let file of image_files) {
-    if (file !== null) {
+    if (file !== "null") {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
       const relative_path = get_asset_url(file.name);
       if (is_prod()) {
-        await s3_upload_file(relative_path, buffer);
+        await s3_upload_file(get_asset_s3_url(file.name), buffer);
       } else {
         const destinationPath = path.join(process.cwd(), "public", relative_path);
         await writeFile(destinationPath, buffer);
@@ -189,7 +189,7 @@ export async function PUT(req: Request) {
       // delete the old file
       const relative_old_path = get_asset_url(image.src);
       if (is_prod()) {
-        await s3_delete_file(relative_old_path)
+        await s3_delete_file(get_asset_s3_url(image.src))
       } else {
         const fullOldPath = path.join(process.cwd(), "public", relative_old_path);
         try {
@@ -209,7 +209,7 @@ export async function PUT(req: Request) {
       const buffer = Buffer.from(await file.arrayBuffer());
       const relative_path = get_asset_url(file.name);
       if (is_prod()) {
-        await s3_upload_file(relative_path, buffer);
+        await s3_upload_file(get_asset_s3_url(file.name), buffer);
       } else {
         const destinationPath = path.join(process.cwd(), "public", relative_path);
         await writeFile(destinationPath, buffer);
@@ -298,7 +298,7 @@ export async function DELETE(req: Request) {
   for (let image of project.images ? project.images : []) {
     const relative_path = get_asset_url(image.src);
     if (is_prod()) {
-      await s3_delete_file(relative_path);
+      await s3_delete_file(get_asset_s3_url(image.src));
     } else {
       const fullOldPath = path.join(process.cwd(), "public", relative_path);
       try {

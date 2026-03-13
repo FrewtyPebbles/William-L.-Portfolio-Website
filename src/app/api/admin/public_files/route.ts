@@ -2,7 +2,7 @@ import prisma from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import path from "path"
 import { writeFile, unlink } from 'fs/promises';
-import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
+import { get_asset_s3_url, s3_delete_file, s3_upload_file } from "@/lib/s3_api";
 import { is_prod } from "@/lib/server-utils";
 import { get_asset_url } from "@/lib/utils";
 
@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         const relative_path = get_asset_url(file.name);
         if (is_prod()) {
             console.log(`Writing public file file to s3 bucket at ${relative_path}`)
-            await s3_upload_file(relative_path, buffer);
+            await s3_upload_file(get_asset_s3_url(file.name), buffer);
         } else {
             const destinationPath = path.join(process.cwd(), "public", relative_path);
             console.log(`Writing public file file to ${destinationPath}`)
@@ -111,7 +111,7 @@ export async function PUT(req: Request) {
         // delete the old file
         const relative_old_path = get_asset_url(public_file.src);
         if (is_prod()) {
-            await s3_delete_file(relative_old_path);
+            await s3_delete_file(get_asset_s3_url(public_file.src));
         } else {
             const fullOldPath = path.join(process.cwd(), "public", relative_old_path);
             try {
@@ -125,7 +125,7 @@ export async function PUT(req: Request) {
         const relative_path = get_asset_url(file.name);
         if (is_prod()) {
             // PROD
-            await s3_upload_file(relative_path, buffer);
+            await s3_upload_file(get_asset_s3_url(file.name), buffer);
         } else {
             const destinationPath = path.join(process.cwd(), "public", relative_path);
             // DEV
@@ -156,7 +156,7 @@ export async function DELETE(req: Request) {
     const relative_path = get_asset_url(public_file.src);
     try {
         if (is_prod()) {
-            await s3_delete_file(relative_path);
+            await s3_delete_file(get_asset_s3_url(public_file.src));
         } else {
             const fullOldPath = path.join(process.cwd(), "public", relative_path);
             await unlink(fullOldPath);

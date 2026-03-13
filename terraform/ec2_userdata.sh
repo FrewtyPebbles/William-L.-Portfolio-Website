@@ -18,12 +18,13 @@ aws s3 cp s3://global-files-wal-aws/deployments/portfolio.tar /tmp/portfolio.tar
 # Load the tarball
 docker load < /tmp/portfolio.tar
 # get Environment Variables
-aws s3 cp s3://global-files-wal-aws/portfolio/.env /tmp/.env
+aws s3 cp s3://global-files-wal-aws/portfolio/.env.prod /tmp/.env.prod
 # Run the app
 docker run -d \
     -p 80:3000 \
-    --env-file /tmp/.env \
+    --env-file /tmp/.env.prod \
+    -e ENVIRONMENT=prod
     -e CDN_DOMAIN=${cdn_domain} \
     -e S3_BUCKET_NAME=${s3_bucket_name} \
-    -e DATABASE_URL="postgresql://${db_username}:${DATABASE_PASSWORD}@${db_endpoint}/${db_name}" \
+    -e DATABASE_URL="postgresql://${db_username}:$DATABASE_PASSWORD@${db_endpoint}/${db_name}" \
     portfolio

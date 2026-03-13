@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node ./run_scripts/dev.js",
+    "docker_build_test": "docker compose -f .\\docker-compose.dev.yml up --build --force-recreate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"

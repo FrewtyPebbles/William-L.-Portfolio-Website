@@ -55,7 +55,7 @@ export default function Home() {
                     },
                     {
                       src:"/linkedin.svg",
-                      href:"https://github.com/FrewtyPebbles",
+                      href:"https://www.linkedin.com/in/william-lim-87733a270/",
                       alt:"GitHub"
                     },
                   ].map(({src, href, alt}, index) => {

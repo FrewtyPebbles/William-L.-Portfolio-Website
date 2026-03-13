@@ -1,6 +1,11 @@
 services:
   db:
     image: postgres:latest
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d portfolio_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     restart: always
     environment:
       POSTGRES_USER: user
@@ -15,10 +20,14 @@ services:
       context: .
       args:
         - ENVIRONMENT=dev
+    user: "root"
+    command: >
+      sh -c "chown -R node:node /app/public/static/uploads && 
+             su node -c 'npx prisma migrate deploy && node server.js'"
     ports:
       - "80:3000"
     volumes:
-      - public_files:/app/public
+      - public_files:/app/public/static/uploads
     environment:
       # Ensure the app looks for the DB file in the mounted volume path
       database_username: user
