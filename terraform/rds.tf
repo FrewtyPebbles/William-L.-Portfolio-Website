@@ -9,8 +9,8 @@ resource "aws_rds_cluster" "portfolio_db" {
   engine_mode        = "provisioned"
   engine_version     = "16.3"
   database_name      = "portfoliodb"
-  master_username    = var.database_username
-  master_password    = var.database_password
+  master_username    = data.dotenv.config.env["DATABASE_USERNAME"]
+  master_password    = data.dotenv.config.env["DATABASE_PASSWORD"]
 
   vpc_security_group_ids = [aws_security_group.rds_sg.id]
 

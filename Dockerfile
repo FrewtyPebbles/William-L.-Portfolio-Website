@@ -29,7 +29,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN npm ci
 
-FROM base AS base_build
+FROM base AS final_build
 
 COPY . .
 
@@ -37,56 +37,28 @@ ENV ENVIRONMENT=${ENVIRONMENT}
 
 RUN terraform -chdir=terraform init
 
-# DEV ENVIRONMENT BUILD STAGE
-FROM base_build AS dev_build
-
-RUN npx prisma generate
-
-# This will only be used in dev
-# since we dont want to override the db in prod
-RUN npx prisma db push
-
-
-# Build the application
-RUN npm run build
-
-# PROD ENVIRONMENT BUILD STAGE
-FROM base_build AS prod_build
-
 RUN npx prisma generate
 # Build the application
 RUN npm run build
-
-# ENVIRONMENT SELECTOR STAGE
-FROM ${ENVIRONMENT}_build AS final_build
 
 # RUNTIME STAGE
-FROM node:lts-slim AS base_runtime
+FROM node:lts-slim AS runtime
+
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+COPY --from=final_build /app/prisma/migrations ./prisma/migrations
 COPY --from=final_build /app/.next/standalone ./
 COPY --from=final_build /app/.next/static ./.next/static
 COPY --from=final_build /app/public ./public
+COPY --from=final_build /app/prisma/schema.prisma ./prisma/schema.prisma
+COPY --from=final_build /app/prisma.config.ts ./prisma.config.ts
+COPY --from=final_build /app/prisma.config.ts ./prisma.config.ts
 
-# DEV RUNTIME
-FROM base_runtime AS dev_runtime
-
-RUN mkdir -p /app/database
-
-COPY --from=final_build /app/prisma/dev_migrations ./prisma/dev_migrations
-COPY --from=final_build /app/prisma/schema.dev.prisma ./prisma/schema.dev.prisma
-COPY --from=final_build /app/database/dev.db ./database/dev.db
-
-# PROD RUNTIME
-FROM base_runtime AS prod_runtime
-
-COPY --from=final_build /app/prisma/prod_migrations ./prisma/prod_migrations
-COPY --from=final_build /app/prisma/schema.prod.prisma ./prisma/schema.prod.prisma
-
-# FINAL RUNTIME STAGE
-FROM ${ENVIRONMENT}_runtime AS runtime
+RUN npm install prisma@7.5.0 --save-dev
 
 EXPOSE 3000
 ENV PORT=3000
 
-CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.${ENVIRONMENT}.prisma", "&&", "node", "server.js"]
+CMD npx prisma migrate deploy && node server.js

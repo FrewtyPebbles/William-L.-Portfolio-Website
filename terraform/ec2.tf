@@ -20,28 +20,13 @@ resource "aws_instance" "web-server" {
 
     iam_instance_profile = aws_iam_instance_profile.ec2_s3_profile.name
     
-user_data = <<-EOF
-            #!/bin/bash
-            # set up swap memory
-            sudo fallocate -l 2G /swapfile
-            sudo chmod 600 /swapfile
-            sudo mkswap /swapfile
-            sudo swapon /swapfile
-            echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
-            
-            # install git and docker
-            sudo yum install git -y
-            sudo dnf install -y docker docker-compose-plugin
-            sudo systemctl enable docker
-            sudo systemctl start docker
-
-            # pull repo
-            git clone https://github.com/FrewtyPebbles/William-L.-Portfolio-Website.git "site"
-            cd site
-
-            # in repo
-            docker compose up -d
-            EOF
+    user_data = templatefile("${path.module}/ec2_userdata.sh",{
+      db_username = aws_rds_cluster.portfolio_db.master_username
+      db_endpoint = aws_rds_cluster.portfolio_db.endpoint
+      db_name = aws_rds_cluster.portfolio_db.database_name
+      cdn_domain = aws_cloudfront_distribution.portfolio-cdn.domain_name
+      s3_bucket_name = aws_s3_bucket.static-content-bucket.id
+    })
     
     tags = {
         Name = "web-server"

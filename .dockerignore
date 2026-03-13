@@ -4,3 +4,5 @@ node_modules
 database
 .env
 .git
+Dockerfile
+docker-compose.dev.yml

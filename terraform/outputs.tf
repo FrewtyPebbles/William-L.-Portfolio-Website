@@ -23,12 +23,6 @@ output "static_content_bucket_name" {
     value = aws_s3_bucket.static-content-bucket.id
 }
 
-output "database_url" {
-  description = "Connection string for Prisma"
-  value       = "postgresql://${aws_rds_cluster.portfolio_db.master_username}:${var.database_password}@${aws_rds_cluster.portfolio_db.endpoint}:5432/${aws_rds_cluster.portfolio_db.database_name}?sslmode=verify-full"
-  sensitive   = true
-}
-
 output "s3_region" {
   value = aws_s3_bucket.static-content-bucket.region
 }

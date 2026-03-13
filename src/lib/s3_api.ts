@@ -1,13 +1,13 @@
+import "dotenv/config"
 import { S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand, GetObjectCommandOutput } from "@aws-sdk/client-s3";
-import OUTPUTS, {TerraformOutputs} from "./terraform_outputs";
 
 
 // Initialize S3 Client
-const s3Client = new S3Client({ region: (OUTPUTS as TerraformOutputs).s3_region });
+const s3Client = new S3Client({ region: process.env.S3_REGION });
 
 export async function s3_upload_file(fileName:string, content:string|Buffer<ArrayBuffer>) {
   const uploadParams = {
-    Bucket: (OUTPUTS as TerraformOutputs).static_content_bucket_name,
+    Bucket: process.env.S3_BUCKET_NAME,
     Key: fileName,
     Body: content,
   };
@@ -22,7 +22,7 @@ export async function s3_upload_file(fileName:string, content:string|Buffer<Arra
 
 export async function s3_delete_file(fileName:string) {
   const uploadParams = {
-    Bucket: (OUTPUTS as TerraformOutputs).static_content_bucket_name,
+    Bucket: process.env.S3_BUCKET_NAME,
     Key: fileName,
   };
 
@@ -36,7 +36,7 @@ export async function s3_delete_file(fileName:string) {
 
 export async function s3_get_file(fileName:string): Promise<GetObjectCommandOutput | null> {
   const uploadParams = {
-    Bucket: (OUTPUTS as TerraformOutputs).static_content_bucket_name,
+    Bucket: process.env.S3_BUCKET_NAME,
     Key: fileName,
   };
 

@@ -2,7 +2,6 @@ import prisma from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import path from "path"
 import { writeFile, unlink } from 'fs/promises';
-import OUTPUTS, { TerraformOutputs } from "@/lib/terraform_outputs";
 import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
 import { is_prod } from "@/lib/server-utils";
 

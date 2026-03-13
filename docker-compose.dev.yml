@@ -13,14 +13,16 @@ services:
   web:
     build:
       context: .
+      args:
+        - ENVIRONMENT=dev
     ports:
       - "80:3000"
     volumes:
       - public_files:/app/public
     environment:
       # Ensure the app looks for the DB file in the mounted volume path
-      TF_VAR_database_username: user
-      TF_VAR_database_password: password
+      database_username: user
+      database_password: password
       DATABASE_URL: postgresql://user:password@db:5432/portfolio_db
       ENVIRONMENT: dev
       ADMIN_PASSWORD: ${ADMIN_PASSWORD}
