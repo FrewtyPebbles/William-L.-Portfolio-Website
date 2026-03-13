@@ -50,7 +50,7 @@ WORKDIR /app
 
 COPY --from=final_build /app/prisma/migrations ./prisma/migrations
 COPY --from=final_build /app/.next/standalone ./
-COPY --from=final_build /app/.next/static ./.next/static
+COPY --from=final_build /app/.next/public ./.next/public
 COPY --from=final_build /app/public ./public
 COPY --from=final_build /app/prisma/schema.prisma ./prisma/schema.prisma
 COPY --from=final_build /app/prisma.config.ts ./prisma.config.ts

@@ -1,6 +1,6 @@
 import type { MDXComponents } from 'mdx/types'
 import Image from 'next/image';
-import { get_asset_url } from './lib/server-utils';
+import { get_asset_url } from './lib/utils';
 
 // This function is required to use MDX with the App Router
 export function useMDXComponents(components: MDXComponents): MDXComponents {
@@ -101,6 +101,12 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
                 w-[calc(100%_-_var(--spacing)_*_6)]
                 border-none
             ' />
+    ),
+
+    ul: ({children}) => (
+      <ul className='list-disc list-inside p-3 flex flex-col gap-1'>
+        {children}
+      </ul>
     ),
 
     ...components, // Merge with existing components

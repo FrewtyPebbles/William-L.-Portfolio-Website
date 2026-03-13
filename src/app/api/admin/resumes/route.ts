@@ -4,6 +4,7 @@ import path from "path"
 import { writeFile, unlink } from 'fs/promises';
 import { is_prod } from "@/lib/server-utils";
 import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
+import { get_asset_url } from "@/lib/utils";
 
 export async function GET() {
   return NextResponse.json(
@@ -54,11 +55,11 @@ export async function POST(req: Request) {
     );
   } else {
     const buffer = Buffer.from(await file.arrayBuffer());
-    const relative_path = `public/uploads/${file.name}`;
+    const relative_path = get_asset_url(file.name);
     if (is_prod()) {
       await s3_upload_file(relative_path, buffer)
     } else {
-      const destinationPath = path.join(process.cwd(), relative_path);
+      const destinationPath = path.join(process.cwd(), "public", relative_path);
       console.log(`Writing resume file to ${destinationPath}`)
       await writeFile(destinationPath, buffer);
     }
@@ -106,8 +107,8 @@ export async function PUT(req: Request) {
 
   if (file !== null) {
     // delete the old file
-    const relative_old_path = `public/uploads/${resume.src}`;
-    const fullOldPath = path.join(process.cwd(), relative_old_path);
+    const relative_old_path = get_asset_url(resume.src);
+    const fullOldPath = path.join(process.cwd(), "public", relative_old_path);
     try {
       if (is_prod()) {
         await s3_delete_file(relative_old_path);
@@ -119,11 +120,11 @@ export async function PUT(req: Request) {
     }
     // save the new file
     const buffer = Buffer.from(await file.arrayBuffer());
-    const relative_path = `public/uploads/${file.name}`;
+    const relative_path = get_asset_url(file.name);
     if (is_prod()) {
       await s3_upload_file(relative_path, buffer);
     } else {
-      const destinationPath = path.join(process.cwd(), relative_path);
+      const destinationPath = path.join(process.cwd(), "public", relative_path);
       await writeFile(destinationPath, buffer);
     }
   }
@@ -148,8 +149,8 @@ export async function DELETE(req: Request) {
       { status: 404 }
     );
   }
-  const relative_old_path = `public/uploads/${resume.src}`;
-  const fullOldPath = path.join(process.cwd(), relative_old_path);
+  const relative_old_path = get_asset_url(resume.src);
+  const fullOldPath = path.join(process.cwd(), "public", relative_old_path);
   try {
     if (is_prod()) {
       await s3_delete_file(relative_old_path);

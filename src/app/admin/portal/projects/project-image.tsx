@@ -1,4 +1,5 @@
 import { ProjectSubImage } from "@/generated/prisma";
+import { get_asset_url } from "@/lib/utils";
 import { ChangeEvent } from "react";
 
 interface ProjectImageProps {
@@ -40,9 +41,9 @@ export function ProjectImage({image:{image, file}, onUpdate}:ProjectImageProps) 
             <input onChange={handle_image_file_change} className='admin-style' type="file" name="image_file"/>
         </div>
         <div className='break-words'>
-            SRC : {image.src}
+            SRC : {get_asset_url(image.src)}
         </div>
-        <img src={file ? URL.createObjectURL(file) : (image.src == "" ? undefined : image.src )} alt="" className='h-50' />
+        <img src={file ? URL.createObjectURL(file) : (image.src == "" ? undefined : get_asset_url(image.src) )} alt="" className='h-50' />
         <div>
             <button onClick={e => onUpdate(null, null)} className='!bg-red-500 admin-style' type="button">Remove</button>
         </div>

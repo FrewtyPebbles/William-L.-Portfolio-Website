@@ -7,7 +7,10 @@ import { is_prod } from "@/lib/server-utils"
 export async function POST(req: Request) {
   try {
     const { password } = await req.json()
-
+    console.log(password);
+    console.log(process.env.ADMIN_PASSWORD);
+    
+    
     // validate
     if (password !== process.env.ADMIN_PASSWORD) {
       return NextResponse.json({ error: "Invalid password" }, { status: 401 })

@@ -52,13 +52,13 @@ export default function Page({ params }: Props){
 
         images.forEach((item, index) => {
             if (item.file) {
-                // Option A: Use the same key to create an array of files
                 formData.append('image_files', item.file);
-                
-                // Send the metadata as a stringified array or matched keys
-                // This helps the server link item.file to item.image properties
-                formData.append('images', JSON.stringify(item.image));
+            } else {
+                formData.append('image_files', 'null');
             }
+            // Send the metadata as a stringified array or matched keys
+            // This helps the server link item.file to item.image properties
+            formData.append('images', JSON.stringify(item.image));
         });
 
         links.forEach((link, index) => {
@@ -97,6 +97,8 @@ export default function Page({ params }: Props){
                     set_project(project);
                     let new_images = []
                     for (let image of project.images) {
+                        console.log(image.id);
+                        
                         new_images.push({
                             image:image,
                             file:null

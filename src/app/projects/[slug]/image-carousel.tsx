@@ -1,5 +1,5 @@
 import { ProjectSubImage } from '@/generated/prisma';
-import { get_asset_url } from '@/lib/server-utils';
+import { get_asset_url } from '@/lib/utils';
 import Image from 'next/image';
 import { Fragment } from 'react/jsx-runtime';
 

@@ -9,7 +9,10 @@ export default function AdminLogin() {
   async function login() {
     const res = await fetch("/api/admin/login", {
       method: "POST",
-      body: JSON.stringify({ password }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password:password }),
     })
 
     console.log(res)
@@ -28,6 +31,7 @@ export default function AdminLogin() {
       <input
         type="password"
         className="border p-2 w-full"
+        value={password}
         onChange={e => setPassword(e.target.value)}
       />
       <button onClick={login} className="bg-black text-white px-4 py-2">

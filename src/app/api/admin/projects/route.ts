@@ -5,6 +5,7 @@ import { writeFile, unlink } from 'fs/promises';
 import { ProjectProgress, ProjectSubImage, ProjectSubLink } from "@/generated/prisma";
 import { is_prod } from "@/lib/server-utils";
 import { s3_delete_file, s3_upload_file } from "@/lib/s3_api";
+import { get_asset_url } from "@/lib/utils";
 
 export async function GET() {
   return NextResponse.json(
@@ -76,11 +77,11 @@ export async function POST(req: Request) {
     if (file !== null) {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
-      const relative_path = `public/uploads/${file.name}`;
+      const relative_path = get_asset_url(file.name);
       if (is_prod()) {
         await s3_upload_file(relative_path, buffer);
       } else {
-        const destinationPath = path.join(process.cwd(), relative_path);
+        const destinationPath = path.join(process.cwd(), "public", relative_path);
         await writeFile(destinationPath, buffer);
       }
     }
@@ -139,7 +140,7 @@ export async function PUT(req: Request) {
     console.log("Found Project");
         
 
-  const image_files = formData.getAll('image_files') as File[];
+  const image_files = formData.getAll('image_files') as (File|"null")[];
 
   const images_raw = formData.getAll('images') as string[];
   let images:ProjectSubImage[] = [];
@@ -148,6 +149,7 @@ export async function PUT(req: Request) {
     if (image.src === "" || image.src === "/")
       return required_res("image src");
     images.push(image);
+    console.log("IMAGE SENT TO SERVER ", image);
   }
 
   const links_raw = formData.getAll('links') as string[];
@@ -185,11 +187,11 @@ export async function PUT(req: Request) {
   for (let image of project.images) {
     if (!check_image_exists(image.id)) {
       // delete the old file
-      const relative_old_path = `public/uploads/${image.src}`;
+      const relative_old_path = get_asset_url(image.src);
       if (is_prod()) {
         await s3_delete_file(relative_old_path)
       } else {
-        const fullOldPath = path.join(process.cwd(), relative_old_path);
+        const fullOldPath = path.join(process.cwd(), "public", relative_old_path);
         try {
             console.log(`Deleting old image file : ${fullOldPath}`);
             await unlink(fullOldPath);
@@ -202,14 +204,14 @@ export async function PUT(req: Request) {
   
   console.log(`Attempting to upload ${image_files.length} images`)
   for (let file of image_files) {
-    if (file !== null) {
+    if (file !== "null") {
       // save the new file
       const buffer = Buffer.from(await file.arrayBuffer());
-      const relative_path = `public/uploads/${file.name}`;
+      const relative_path = get_asset_url(file.name);
       if (is_prod()) {
         await s3_upload_file(relative_path, buffer);
       } else {
-        const destinationPath = path.join(process.cwd(), relative_path);
+        const destinationPath = path.join(process.cwd(), "public", relative_path);
         await writeFile(destinationPath, buffer);
       }
     }
@@ -294,11 +296,11 @@ export async function DELETE(req: Request) {
   }
 
   for (let image of project.images ? project.images : []) {
-    const relative_path = `public/uploads/${image.src}`;
+    const relative_path = get_asset_url(image.src);
     if (is_prod()) {
       await s3_delete_file(relative_path);
     } else {
-      const fullOldPath = path.join(process.cwd(), relative_path);
+      const fullOldPath = path.join(process.cwd(), "public", relative_path);
       try {
           console.log(`Deleting old image file : ${fullOldPath}`);
           await unlink(fullOldPath);
