@@ -22,7 +22,6 @@ resource "aws_rds_cluster" "portfolio_db" {
   serverlessv2_scaling_configuration {
     min_capacity             = 0.0 # scale to zero
     max_capacity             = 1.0 # Minimum capacity
-    seconds_until_auto_pause = 300
   }
 }
 

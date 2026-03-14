@@ -16,9 +16,10 @@ resource "aws_instance" "web-server" {
     instance_type = "t2.micro"
 
     subnet_id = module.vpc.private_subnets[0]
-    security_groups = [aws_security_group.ec2_sg.id]
 
     iam_instance_profile = aws_iam_instance_profile.ec2_s3_profile.name
+
+    vpc_security_group_ids = [aws_security_group.ec2_sg.id]
     
     user_data = templatefile("${path.module}/ec2_userdata.sh",{
       db_username = aws_rds_cluster.portfolio_db.master_username
@@ -31,10 +32,4 @@ resource "aws_instance" "web-server" {
     tags = {
         Name = "web-server"
     }
-}
-
-resource "aws_lb_target_group_attachment" "ec2_attachment" {
-  target_group_arn = aws_lb_target_group.alb-target-group.arn
-  target_id        = aws_instance.web-server.id   # or your instance ID
-  port             = 80
 }

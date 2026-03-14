@@ -1,6 +1,15 @@
 
 locals {
   public_dir = "${path.module}/../public/static"
+  mime_types = {
+    "html" = "text/html"
+    "css"  = "text/css"
+    "js"   = "application/javascript"
+    "png"  = "image/png"
+    "jpg"  = "image/jpeg"
+    "jpeg"  = "image/jpeg"
+    "svg"  = "image/svg"
+  }
 }
 
 resource "aws_s3_object" "public_files" {
@@ -11,7 +20,7 @@ resource "aws_s3_object" "public_files" {
   key    = each.value
   source = "${local.public_dir}/${each.value}"
 
-  content_type = minitype(each.value)
+  content_type = lookup(local.mime_types, reverse(split(".", each.value))[0], "application/octet-stream")
 
   # important for terraform backend state
   etag = filemd5("${local.public_dir}/${each.value}")
