@@ -1,3 +1,20 @@
+
+locals {
+  public_dir = "${path.module}/../public"
+}
+
+resource "aws_s3_object" "public_files" {
+  # for each recursively found file
+  for_each = fileset(local.public_dir, "**/*")
+
+  bucket = aws_s3_bucket.static-content-bucket.id
+  key    = each.value
+  source = "${local.public_dir}/${each.value}"
+
+  # important for terraform backend state
+  etag = filemd5("${local.public_dir}/${each.value}")
+}
+
 resource "aws_s3_bucket" "static-content-bucket" {
   bucket = "portfolio-site-static-content-bucket"
 
@@ -73,9 +90,9 @@ resource "aws_iam_policy" "ec2_s3_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Sid = "S3PortfolioStaticAccess"
-        Effect   = "Allow"
-        Action   = [
+        Sid    = "S3PortfolioStaticAccess"
+        Effect = "Allow"
+        Action = [
           "s3:PutObject",
           "s3:DeleteObject",
           "s3:GetObject",
