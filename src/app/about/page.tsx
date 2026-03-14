@@ -42,7 +42,7 @@ export default function Page({}:Props) {
                     '>
                     <img className='
                         mask-b-from-90% sm:mask-l-from-90% mask-t-from-99% mask-r-from-99% mask-l-from-99% max-h-[700px]
-                    ' src="/7bbb6f2a-f00e-4005-8a19-17c318c0691b.jpg" alt="profile" />
+                    ' src="/static/7bbb6f2a-f00e-4005-8a19-17c318c0691b.jpg" alt="profile" />
                     <div className='text-sm text-right text-gray-400 pr-1'> - photo courtesy of my lovely girlfriend</div>
                     </div>
                     <h2 className="text-xl">About</h2>

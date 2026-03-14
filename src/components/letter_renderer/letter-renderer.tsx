@@ -202,7 +202,7 @@ export default function LetterRenderer({ text, size = 48, style, canvas_height_m
 
       // textured noise
       const image = new Image();
-      image.src = "/textured_noise1.jpg";
+      image.src = "/static/textured_noise1.jpg";
 
       setTexturedNoise(gm.create_texture(image, texture_parameters, 0));
       
@@ -212,7 +212,7 @@ export default function LetterRenderer({ text, size = 48, style, canvas_height_m
 
       // perlin noise
       const image2 = new Image();
-      image2.src = "/perlin_noise.jpg";
+      image2.src = "/static/perlin_noise.png";
 
       setPerlinNoise(gm.create_texture(image2, texture_parameters, 0));
       

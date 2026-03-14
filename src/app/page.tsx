@@ -49,12 +49,12 @@ export default function Home() {
                 ">
                   {[
                     {
-                      src:"/github.svg",
+                      src:"/static/github.svg",
                       href:"https://github.com/FrewtyPebbles",
                       alt:"GitHub"
                     },
                     {
-                      src:"/linkedin.svg",
+                      src:"/static/linkedin.svg",
                       href:"https://www.linkedin.com/in/william-lim-87733a270/",
                       alt:"GitHub"
                     },

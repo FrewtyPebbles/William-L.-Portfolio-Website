@@ -1,6 +1,6 @@
 
 locals {
-  public_dir = "${path.module}/../public"
+  public_dir = "${path.module}/../public/static"
 }
 
 resource "aws_s3_object" "public_files" {
@@ -10,6 +10,8 @@ resource "aws_s3_object" "public_files" {
   bucket = aws_s3_bucket.static-content-bucket.id
   key    = each.value
   source = "${local.public_dir}/${each.value}"
+
+  content_type = minitype(each.value)
 
   # important for terraform backend state
   etag = filemd5("${local.public_dir}/${each.value}")
