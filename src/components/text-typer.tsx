@@ -5,9 +5,10 @@ interface Props {
     text:string;
     speed_seconds?:number;
     scramble_set?:Array<string>;
+    className?: string;
 }
 
-export default function TextTyper({text, speed_seconds = 0.1, scramble_set = ["0", "|", "!", ";", ":", ",", ".", ",", ":", ";", "!", "|", "?"]}:Props) {
+export default function TextTyper({text, speed_seconds = 0.1, scramble_set = ["0", "|", "!", ";", ":", ",", ".", ",", ":", ";", "!", "|", "?"], className}:Props) {
     let text_array:Array<Array<string>> = [];
     let index_array:Array<number> = [];
     for (let letter of Array.from(text)) {
@@ -18,11 +19,11 @@ export default function TextTyper({text, speed_seconds = 0.1, scramble_set = ["0
     const [letterIndexState, setLetterIndexState] = useState<Array<number>>(index_array);
 
     return (
-        <span>
+        <span className={className}>
             {Array.from(text_array).map((_, letter_index) => {
                 let index = letterIndexState[letter_index];
                 let letter = text_array[letter_index][index];
-                return (<span className="pointer-events-auto" key={letter_index}
+                return (<span className="w-[calc(1em-1px)] text-center inline-block pointer-events-auto" key={letter_index}
                 onMouseOver={() => {
                     // set to max first
                     setLetterIndexState(prev => {

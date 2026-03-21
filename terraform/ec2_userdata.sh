@@ -13,8 +13,10 @@ cat <<EOF >> /tmp/.env.prod
 ENVIRONMENT=prod
 CDN_DOMAIN=${cdn_domain}
 S3_BUCKET_NAME=${s3_bucket_name}
+S3_REGION=${s3_region}
 DATABASE_URL=postgresql://${db_username}:$${DATABASE_PASSWORD}@${db_endpoint}:5432/${db_name}?schema=public&sslmode=require
 EOF
+# We can prefer tls but not fail if unavailable since its all on private subnet anyways
 
 echo "[---WAITING FOR DB---]"
 until pg_isready -h ${db_endpoint} -p 5432 -U ${db_username}; do

@@ -39,6 +39,7 @@ resource "aws_instance" "web-server" {
     db_name        = aws_rds_cluster.portfolio_db.database_name
     cdn_domain     = "walofcode.com"
     s3_bucket_name = aws_s3_bucket.static-content-bucket.id
+    s3_region = aws_s3_bucket.static-content-bucket.region
   })
 
   user_data_replace_on_change = true

@@ -2,7 +2,6 @@ import LetterRenderer from "@/components/letter_renderer/letter-renderer";
 import TextColorer from "@/components/text-colorer";
 import TextTyper from "@/components/text-typer";
 import Link from "next/link";
-import Image from "next/image";
 
 
 export default function Home() {
@@ -26,7 +25,7 @@ export default function Home() {
                 rounded-sm
                 
               ">
-                <TextTyper text="Computer Scientist"/> | <TextColorer text="Illustrator" className="pointer-events-auto"/>
+                <TextTyper className="font-extrabold" text="Computer Scientist" scramble_set={["█", "▓", "▒", "░"]}/> | <TextColorer text="Artist" className="pointer-events-auto font-extrabold"/>
               </div>
               <div className="
                 flex flex-row
@@ -56,7 +55,7 @@ export default function Home() {
                     {
                       src:"/static/linkedin.svg",
                       href:"https://www.linkedin.com/in/william-lim-87733a270/",
-                      alt:"GitHub"
+                      alt:"Linked In"
                     },
                   ].map(({src, href, alt}, index) => {
                     return <SocialIcon
@@ -114,6 +113,6 @@ interface SocialIconProps {
 
 function SocialIcon({className, src, href, alt}:SocialIconProps) {
   return <Link href={href}>
-      <Image className={className} src={src} width={30} height={30} alt={alt}/>
+      <img className={className} src={src} width={30} height={30} alt={alt}/>
   </Link>
 }

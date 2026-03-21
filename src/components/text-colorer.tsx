@@ -23,9 +23,9 @@ export default function TextColorer({text, className}:Props) {
 
   const gradientStyle = {
         background: "linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)",
-        backgroundSize: "200% 200%",
+        backgroundSize: "600% 600%",
         WebkitBackgroundClip: "text" as const,
-        WebkitTextFillColor: "transparent" as const,
+        WebkitTextFillColor: "transparent" as const
     };
 
   return (
@@ -34,7 +34,9 @@ export default function TextColorer({text, className}:Props) {
       style={gradientStyle}
       className={className}
     >
-      {text}
+      {Array.from(text).map((letter, ind) => <span key={ind} className='w-[calc(1em-1px)] inline-block text-center font-mono'>
+        {letter}
+      </span>)}
     </span>
   );
 }

@@ -31,7 +31,16 @@ RUN npm run build
 # RUNTIME STAGE
 FROM node:lts-slim AS runtime
 
-RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
+# Update the certificates for rds connection
+RUN apt-get update && apt-get install -y \
+    openssl \
+    curl \
+    ca-certificates \
+    && curl -sS https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem \
+       -o /etc/ssl/certs/rds-global-bundle.pem \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV NODE_EXTRA_CA_CERTS=/etc/ssl/certs/rds-global-bundle.pem
 
 WORKDIR /app
 

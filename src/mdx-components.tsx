@@ -1,5 +1,4 @@
 import type { MDXComponents } from 'mdx/types'
-import Image from 'next/image';
 import { get_asset_url } from './lib/utils';
 
 // This function is required to use MDX with the App Router
@@ -42,14 +41,23 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
     
     img: (props) => (
       <span className="relative block w-full aspect-video my-4">
-        <Image
-          fill
-          className="object-contain" // Keeps black borders if aspect ratio differs
-          sizes="(max-width: 768px) 100vw, 800px" // Improves performance
-          src={get_asset_url(props.src)}
-          {...props}
-          alt={props.alt || "MDX Image"} // Fixes missing alt warning
-        />
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <img
+            src={get_asset_url(props.src)}
+            alt={props.alt || "image"}
+            {...props}
+            className={`object-contain ${props.className || ''}`}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              top: 0,
+              left: 0,
+              objectFit: 'contain', // Replaces object-contain class behavior
+              ...props.style
+            }}
+          />
+        </div>
       </span>
     ),
 

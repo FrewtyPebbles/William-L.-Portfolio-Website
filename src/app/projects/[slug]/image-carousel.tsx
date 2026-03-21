@@ -1,6 +1,5 @@
 import { ProjectSubImage } from '@/generated/prisma';
 import { get_asset_url } from '@/lib/utils';
-import Image from 'next/image';
 import { Fragment } from 'react/jsx-runtime';
 
 export default function ImageCarousel({ images, className = "" }: { images: ProjectSubImage[], className?:string }) {
@@ -24,12 +23,14 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
                 aspect-video 
               "
             >
-              <Image 
+              <img 
                 src={get_asset_url(image.src)} 
                 alt={`Slide ${index}`} 
-                fill 
-                className="object-contain peer" 
-                priority={index === 0} 
+                // Equivalent of 'fill' + 'object-contain'
+                className="absolute inset-0 w-full h-full object-contain peer" 
+                // Equivalent of 'priority={index === 0}'
+                fetchPriority={index === 0 ? "high" : "auto"}
+                loading={index === 0 ? "eager" : "lazy"}
               />
               {
                 image.description === "" ? <></> :
