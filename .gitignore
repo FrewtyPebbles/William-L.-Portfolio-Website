@@ -45,3 +45,7 @@ next-env.d.ts
 */.terraform/
 .terraform.*
 /packer/secret.auto.pkrvars.hcl
+/packer/tmp
+/terraform/tfplan
+*.tfstate
+*.tfstate.backup

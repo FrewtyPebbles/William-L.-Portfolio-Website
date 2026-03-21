@@ -1,3 +1,7 @@
+data "aws_route53_zone" "main" {
+  name = "walofcode.com"
+}
+
 resource "aws_route53_record" "root" {
   zone_id = data.aws_route53_zone.main.zone_id
   name    = "walofcode.com"

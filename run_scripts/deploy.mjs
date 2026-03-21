@@ -1,7 +1,11 @@
-import { run } from "./lib.mjs";
 import { build_packer } from "./packer_lib.mjs";
+import { deploy_terraform } from "./terraform_lib.mjs";
 
-console.log("\nBUILDING AMI\n");
-build_packer();
-console.log("\nRUNNING TERRAFORM\n");
-run("terraform -chdir=terraform apply");
+async function main() {
+    console.log("\n# RUNNING BUILD PACKER\n");
+    await build_packer();
+    console.log("\n# RUNNING TERRAFORM COMMANDS\n");
+    await deploy_terraform();
+}
+
+main()

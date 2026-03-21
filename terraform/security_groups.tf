@@ -2,7 +2,7 @@ data "aws_ec2_managed_prefix_list" "cloudfront" {
   name = "com.amazonaws.global.cloudfront.origin-facing"
 }
 
-resource "aws_security_group" "private_ec2_sg" {
+resource "aws_security_group" "ec2_sg" {
   name        = "portfolio-private-ec2-sg"
   description = "Restrict access to CloudFront VPC Origin only"
   vpc_id      = module.vpc.vpc_id
@@ -15,6 +15,15 @@ resource "aws_security_group" "private_ec2_sg" {
     prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
   }
 
+  # Remove this in prod vvv
+  ingress {
+    from_port       = 22
+    to_port         = 22
+    protocol        = "tcp"
+    security_groups = [aws_security_group.bastion_sg.id]
+  }
+  # ^^^ Remove this in prod
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -25,15 +34,6 @@ resource "aws_security_group" "private_ec2_sg" {
   tags = {
     Name = "Portfolio-Private-SG"
   }
-}
-
-resource "aws_security_group_rule" "allow_cloudfront_to_ec2" {
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
-  prefix_list_ids   = [data.aws_ec2_managed_prefix_list.cloudfront.id]
-  security_group_id = aws_security_group.ec2_sg.id
 }
 
 resource "aws_security_group" "rds_sg" {

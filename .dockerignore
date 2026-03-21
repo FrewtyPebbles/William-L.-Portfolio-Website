@@ -2,7 +2,11 @@ node_modules
 *.log
 .next
 database
+.env.prod
 .env
 .git
 Dockerfile
 docker-compose.dev.yml
+packer
+terraform
+README.md

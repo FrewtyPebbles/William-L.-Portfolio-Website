@@ -1,4 +1,6 @@
 import { run } from "./lib.mjs";
+import { execSync } from "child_process";
+
 
 // 1. Cleanup & Start
 run('docker kill temp-db', true);

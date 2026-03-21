@@ -1,4 +1,8 @@
 resource "aws_cloudfront_vpc_origin" "ec2_vpc_origin" {
+  lifecycle {
+    replace_triggered_by = [aws_instance.web-server]
+  }
+
   vpc_origin_endpoint_config {
     name                   = "EC2-Private-Origin"
     arn                    = aws_instance.web-server.arn
@@ -14,6 +18,12 @@ resource "aws_cloudfront_vpc_origin" "ec2_vpc_origin" {
 }
 
 resource "aws_cloudfront_distribution" "portfolio-cdn" {
+  lifecycle {
+    replace_triggered_by = [aws_cloudfront_vpc_origin.ec2_vpc_origin]
+  }
+  
+  depends_on = [aws_acm_certificate_validation.portfolio-certificate]
+
   enabled     = true
   aliases     = ["walofcode.com", "www.walofcode.com"]
   price_class = "PriceClass_100"

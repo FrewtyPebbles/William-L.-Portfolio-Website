@@ -1,5 +1,16 @@
-data "aws_ssm_parameter" "amazon_linux_2023_ami" {
-    name = "/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64"
+data "aws_ami" "web-server-ami" {
+  most_recent = true
+  owners      = ["self"] # this means only the amis in my account
+
+  filter {
+    name   = "name"
+    values = ["AL-portfolio-ami-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
 }
 
 resource "aws_iam_instance_profile" "ec2_s3_profile" {
@@ -12,24 +23,29 @@ resource "aws_iam_instance_profile" "ec2_s3_profile" {
 }
 
 resource "aws_instance" "web-server" {
-    ami = data.aws_ssm_parameter.amazon_linux_2023_ami.value
-    instance_type = "t2.micro"
+  depends_on = [aws_rds_cluster_instance.portfolio_instance]
+  ami           = data.aws_ami.web-server-ami.id
+  instance_type = "t4g.nano"
 
-    subnet_id = module.vpc.private_subnets[0]
+  subnet_id = module.vpc.private_subnets[0]
 
-    iam_instance_profile = aws_iam_instance_profile.ec2_s3_profile.name
+  iam_instance_profile = aws_iam_instance_profile.ec2_s3_profile.name
 
-    vpc_security_group_ids = [aws_security_group.ec2_sg.id]
-    
-    user_data = templatefile("${path.module}/ec2_userdata.sh",{
-      db_username = aws_rds_cluster.portfolio_db.master_username
-      db_endpoint = aws_rds_cluster.portfolio_db.endpoint
-      db_name = aws_rds_cluster.portfolio_db.database_name
-      cdn_domain = aws_cloudfront_distribution.portfolio-cdn.domain_name
-      s3_bucket_name = aws_s3_bucket.static-content-bucket.id
-    })
-    
-    tags = {
-        Name = "web-server"
-    }
+  vpc_security_group_ids = [aws_security_group.ec2_sg.id]
+
+  user_data = templatefile("${path.module}/ec2_userdata.sh", {
+    db_username    = aws_rds_cluster.portfolio_db.master_username
+    db_endpoint    = aws_rds_cluster.portfolio_db.endpoint
+    db_name        = aws_rds_cluster.portfolio_db.database_name
+    cdn_domain     = "walofcode.com"
+    s3_bucket_name = aws_s3_bucket.static-content-bucket.id
+  })
+
+  user_data_replace_on_change = true
+  # Remove in prod VVV
+  key_name = "test-server-kp"
+  # Remove in prod ^^^
+  tags = {
+    Name = "web-server"
+  }
 }

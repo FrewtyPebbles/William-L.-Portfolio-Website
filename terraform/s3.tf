@@ -1,9 +1,12 @@
 
 locals {
   public_dir = "${path.module}/../public/static"
+  root_dir = "${path.module}/.."
   mime_types = {
     "html" = "text/html"
     "css"  = "text/css"
+    "txt" = "text/plain"
+    "md" = "text/plain"
     "js"   = "application/javascript"
     "png"  = "image/png"
     "jpg"  = "image/jpeg"
@@ -17,7 +20,7 @@ resource "aws_s3_object" "public_files" {
   for_each = fileset(local.public_dir, "**/*")
 
   bucket = aws_s3_bucket.static-content-bucket.id
-  key    = each.value
+  key    = "static/${each.value}"
   source = "${local.public_dir}/${each.value}"
 
   content_type = lookup(local.mime_types, reverse(split(".", each.value))[0], "application/octet-stream")
@@ -147,4 +150,17 @@ resource "aws_iam_policy" "s3_global_portfolio_folder_limited_access" {
 resource "aws_iam_role_policy_attachment" "ec2_s3_global_portfolio_folder_s3_attachment" {
   role       = aws_iam_role.ec2_s3_role.name
   policy_arn = aws_iam_policy.s3_global_portfolio_folder_limited_access.arn
+}
+
+// upload the .env.prod to the global bucket
+
+resource "aws_s3_object" "env-prod" {
+  bucket = "global-files-wal-aws"
+  key    = "portfolio/.env.prod"
+  source = "${local.root_dir}/.env.prod"
+
+  content_type = "text/plain"
+
+  # important for terraform backend state
+  etag = filemd5("${local.root_dir}/.env.prod")
 }

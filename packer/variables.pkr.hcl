@@ -7,9 +7,5 @@ variable "aws_region" {
 
 variable "ami_prefix" {
   type    = string
-  default = "amazon-linux-docker"
-}
-
-variable "ecr_uri" {
-    type = string
+  default = "AL-portfolio-ami"
 }

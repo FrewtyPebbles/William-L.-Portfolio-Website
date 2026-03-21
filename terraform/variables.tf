@@ -1,5 +1,5 @@
 data "dotenv" "config" {
-  filename = ".env"
+  filename = "../.env"
 }
 
 variable "region" {
@@ -10,5 +10,6 @@ variable "region" {
 
 variable "ENVIRONMENT" {
   type        = string
-  description = "PROD | DEV"
+  description = "prod | dev"
+  default = "prod"
 }

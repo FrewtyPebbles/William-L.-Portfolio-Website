@@ -7,7 +7,6 @@ resource "aws_rds_cluster" "portfolio_db" {
   cluster_identifier = "portfolio-db"
   engine             = "aurora-postgresql"
   engine_mode        = "provisioned"
-  engine_version     = "16.3"
   database_name      = "portfoliodb"
   master_username    = data.dotenv.config.env["DATABASE_USERNAME"]
   master_password    = data.dotenv.config.env["DATABASE_PASSWORD"]
@@ -30,5 +29,4 @@ resource "aws_rds_cluster_instance" "portfolio_instance" {
   cluster_identifier = aws_rds_cluster.portfolio_db.id
   instance_class     = "db.serverless" # this makes it serverless v2
   engine             = aws_rds_cluster.portfolio_db.engine
-  engine_version     = aws_rds_cluster.portfolio_db.engine_version
 }
