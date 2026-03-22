@@ -24,8 +24,8 @@ export default function TextColorer({text, className}:Props) {
   const gradientStyle = {
         background: "linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)",
         backgroundSize: "600% 600%",
-        WebkitBackgroundClip: "text" as const,
-        WebkitTextFillColor: "transparent" as const
+        backgroundClip: "text" as const,
+        color: "transparent" as const
     };
 
   return (

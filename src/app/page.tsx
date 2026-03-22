@@ -65,8 +65,7 @@ export default function Home() {
                       key={index}
                       className="
                       transition-all
-                      hover:blur-none
-                      blur-[1px]
+                      hover:opacity-50
                       hover:cursor-pointer
                       "
                     />
@@ -75,8 +74,8 @@ export default function Home() {
                   <a href="/about"
                   className="
                       transition-all
-                      hover:blur-none
-                      blur-[1px]
+                      hover:underline
+                      hover:text-gray-400
                       hover:cursor-pointer
                       flex items-center justify-center
                       "
