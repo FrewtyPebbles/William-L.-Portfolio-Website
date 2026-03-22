@@ -32,7 +32,7 @@ export function ProjectLink({link, onUpdate}:ProjectLinkProps) {
             <textarea onChange={e=>onChange("description", e)} className='admin-style' name="description" id="" value={link.description} />
         </div>
         <div>
-            <button onClick={e => onUpdate(null)} className='!bg-red-500 admin-style' type="button">Remove</button>
+            <button onClick={e => onUpdate(null)} className='bg-red-500! admin-style' type="button">Remove</button>
         </div>
     </div>
 }

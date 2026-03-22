@@ -51,5 +51,5 @@ export async function s3_get_file(fileName:string): Promise<GetObjectCommandOutp
 }
 
 export function get_asset_s3_url(file_name:string):string {
-  return `/static/uploads/${file_name}`
+  return `static/uploads/${file_name}`
 }
