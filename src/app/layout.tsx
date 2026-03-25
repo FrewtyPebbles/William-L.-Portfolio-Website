@@ -5,6 +5,7 @@ import { NavBar } from "@/components/nav-bar";
 import { Project, Resume } from "@/generated/prisma";
 import prisma from "@/lib/prisma";
 import {  } from 'next/font/google';
+import TailwindDarkmodeFix from "./tailwind-darkmode-fix";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -61,17 +62,11 @@ export default async function RootLayout({
   const projects = await get_projects();
   const resumes = await get_resumes();
   return (
-    <html lang="en" className={montserrat.variable} suppressHydrationWarning>
+    <html lang="en" className={montserrat.variable + " light"}>
       <body
         className={`${montserrat.className} ${montserrat.variable} antialiased`}
       >
-        <script>
-          { // hack for SEO with SSR dark mode for tailwindcss v4.1
-            "if (window.matchMedia('(prefers-color-scheme: dark)').matches) {" +
-            "document.documentElement.classList.add('dark');" +
-            "}"
-          }
-        </script>
+        
         <div className="flex flex-col min-h-screen">
           <div className="h-10"/>
           <NavBar projects={projects} resumes={resumes} className=""/>
@@ -79,6 +74,7 @@ export default async function RootLayout({
             {children}
           </main>
         </div>
+        <TailwindDarkmodeFix/>
       </body>
     </html>
   );

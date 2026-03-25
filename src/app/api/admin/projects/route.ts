@@ -2,10 +2,23 @@ import prisma from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import path from "path"
 import { writeFile, unlink } from 'fs/promises';
-import { ProjectProgress, ProjectSubImage, ProjectSubLink } from "@/generated/prisma";
+import { Prisma, ProjectProgress, ProjectSubImage, ProjectSubLink } from "@/generated/prisma";
 import { is_prod } from "@/lib/server-utils";
 import { get_asset_s3_url, s3_delete_file, s3_upload_file } from "@/lib/s3_api";
 import { get_asset_url } from "@/lib/utils";
+
+type FullContribution = Prisma.ContributionGetPayload<{
+    include: {
+        level: true,
+        description: true,
+        contributor: {
+            select: {
+                name:true,
+                githubUserName:true,
+            }
+        }
+    },
+}>;
 
 export async function GET() {
   return NextResponse.json(
@@ -59,6 +72,19 @@ export async function POST(req: Request) {
     links.push(link);
   }
 
+  const contributions_raw = formData.getAll('contributions') as string[];
+  let contributions:FullContribution[] = [];
+  for (let raw_contribution of contributions_raw) {
+    let contribution:FullContribution = JSON.parse(raw_contribution);
+    if (contribution.contributor.githubUserName === "")
+      return required_res("contribution contributor's github name");
+    if (contribution.contributor.name === "")
+      return required_res("contribution contributor's name");
+    if (!["EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", "EVERYTHING", "NON_APPLICABLE"].includes(contribution.level as string))
+      return required_res("contribution's level");
+    contributions.push(contribution);
+  }
+
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
   const progress = formData.get('progress') as ProjectProgress;
@@ -104,6 +130,21 @@ export async function POST(req: Request) {
           createMany:{
             data:links
           },
+        },
+        contributions:{
+          create: contributions.map((contribution) => ({
+            level: contribution.level,
+            description: contribution.description,
+            contributor: {
+              connectOrCreate: {
+                where: { githubUserName: contribution.contributor.githubUserName },
+                create: {
+                  name: contribution.contributor.name,
+                  githubUserName: contribution.contributor.githubUserName,
+                },
+              },
+            },
+          })),
         }
     } })
   );
@@ -163,6 +204,19 @@ export async function PUT(req: Request) {
     links.push(link);
   }
 
+  const contributions_raw = formData.getAll('contributions') as string[];
+  let contributions:FullContribution[] = [];
+  for (let raw_contribution of contributions_raw) {
+    let contribution:FullContribution = JSON.parse(raw_contribution);
+    if (contribution.contributor.githubUserName === "")
+      return required_res("contribution contributor's github name");
+    if (contribution.contributor.name === "")
+      return required_res("contribution contributor's name");
+    if (!["EXTRA_SMALL", "SMALL", "MEDIUM", "LARGE", "EXTRA_LARGE", "EVERYTHING", "NON_APPLICABLE"].includes(contribution.level as string))
+      return required_res("contribution's level");
+    contributions.push(contribution);
+  }
+
   const title = formData.get('title') as string;
   const slug = formData.get('slug') as string;
   const progress = formData.get('progress') as ProjectProgress;
@@ -220,6 +274,7 @@ export async function PUT(req: Request) {
 
   const imageIdsToKeep = images.map(img => img.id).filter(Boolean);
   const linkIdsToKeep = links.map(link => link.id).filter(Boolean);
+  const contributionIdsToKeep = contributions.map(contribution => contribution.id).filter(Boolean);
   
   return NextResponse.json(
     await prisma.project.update({ where: { id }, data:{
@@ -252,7 +307,7 @@ export async function PUT(req: Request) {
             id: { notIn: linkIdsToKeep }
           },
           upsert: links.map((link) => ({
-            where: { id: link.id || -1 }, // If it's a new image, id will be undefined
+            where: { id: link.id || -1 }, // If it's a new link, id will be undefined
             update: {
               title: link.title,
               description: link.description,
@@ -262,6 +317,43 @@ export async function PUT(req: Request) {
               title: link.title,
               description: link.description,
               link: link.link,
+            }
+          }))
+        },
+        contributions: {
+          deleteMany: {
+            id: { notIn: contributionIdsToKeep }
+          },
+          upsert: contributions.map((contribution) => ({
+            where: { id: contribution.id || -1 },
+            update: {
+              level: contribution.level,
+              description: contribution.description,
+              contributor: {
+                upsert: {
+                  where: { githubUserName: contribution.contributor.githubUserName },
+                  update: { 
+                    name: contribution.contributor.name 
+                  },
+                  create: {
+                    name: contribution.contributor.name,
+                    githubUserName: contribution.contributor.githubUserName,
+                  },
+                },
+              },
+            },
+            create: {
+              level: contribution.level,
+              description: contribution.description,
+              contributor: {
+                connectOrCreate: {
+                  where: { githubUserName: contribution.contributor.githubUserName },
+                  create: {
+                    name: contribution.contributor.name,
+                    githubUserName: contribution.contributor.githubUserName,
+                  },
+                },
+              },
             }
           }))
         }

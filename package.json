@@ -39,7 +39,8 @@
     "prisma": "^7.5.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
-    "tailwind-merge": "^3.3.1"
+    "tailwind-merge": "^3.3.1",
+    "vanta-engine": "^1.0.10"
   },
   "devDependencies": {
     "@aws-sdk/client-ec2": "^3.1009.0",

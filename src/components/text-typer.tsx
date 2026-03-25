@@ -24,7 +24,7 @@ export default function TextTyper({text, speed_seconds = 0.1, scramble_set = ["0
                 let index = letterIndexState[letter_index];
                 let letter = text_array[letter_index][index];
                 return (<span className="w-[calc(1em-1px)] text-center inline-block pointer-events-auto" key={letter_index}
-                onMouseOver={() => {
+                onMouseMove={() => {
                     // set to max first
                     setLetterIndexState(prev => {
                         const lis = [...prev];

@@ -3,6 +3,7 @@ import { Prisma, Project, ProjectProgress, ProjectSubImage, ProjectSubLink } fro
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react';
 import { ProjectImage } from '../project-image';
 import { ProjectLink } from '../project-link';
+import { ProjectContribution } from '../project-contribution';
 
 interface Props {
   params: Promise<{
@@ -23,6 +24,19 @@ type FullProject = Prisma.ProjectGetPayload<{
     },
 }>;
 
+type FullContribution = Prisma.ContributionGetPayload<{
+    include: {
+        level: true,
+        description: true,
+        contributor: {
+            select: {
+                name:true,
+                githubUserName:true,
+            }
+        }
+    },
+}>;
+
 const progressOptions = [
     ProjectProgress.PROTOTYPING,
     ProjectProgress.DEVELOPMENT,
@@ -35,6 +49,7 @@ export default function Page({ params }: Props){
     const [project, set_project] = useState<FullProject|null>(null);
     const [images, set_images] = useState<{image:ProjectSubImage, file:File | null}[]>([]);
     const [links, set_links] = useState<ProjectSubLink[]>([]);
+    const [contributions, set_contributions] = useState<FullContribution[]>([]);
     const [title, set_title] = useState<string>("")
     const [slug, set_slug] = useState<string>("")
     const [progress, set_progress] = useState<ProjectProgress>(ProjectProgress.ALPHA)
@@ -64,6 +79,12 @@ export default function Page({ params }: Props){
         links.forEach((link, index) => {
             if (link) {
                 formData.append('links', JSON.stringify(link));
+            }
+        });
+
+        contributions.forEach((contribution, index) => {
+            if (contribution) {
+                formData.append('contributions', JSON.stringify(contribution));
             }
         });
 
@@ -107,6 +128,7 @@ export default function Page({ params }: Props){
                     set_images(new_images);
                     set_progress(project.progress);
                     set_links(project.links);
+                    set_contributions(project.contributions);
                     set_title(project.title);
                     set_slug(project.slug);
                     set_short_description(project.short_description);
@@ -232,6 +254,48 @@ export default function Page({ params }: Props){
                                         const nextLinks = [...prevLinks];
                                         nextLinks[index] = edited_link;
                                         return nextLinks;
+                                    });
+                                }
+                            }}
+                        />
+                    ))}
+                </div>
+                {/* CONTRIBUTIONS */}
+                <p>Contributions :</p>
+                <button
+                    className='
+                    admin-style
+                    bg-green-500!
+                    '
+                    type='button'
+                    onClick={e => {
+                        let new_contributions = [...contributions];
+                        new_contributions.push({
+                            level:"EVERYTHING",
+                            description:"",
+                            contributor: {
+                                name:"",
+                                githubUserName:""
+                            }
+                        } as FullContribution);
+                        set_contributions(new_contributions);
+                    }}
+                >ADD</button>
+                <div className='flex flex-wrap'>
+                    {contributions.map((contribution, index) => (
+                        <ProjectContribution 
+                            key={index} 
+                            contribution={contribution}
+                            onUpdate={(edited_contribution) => {
+                                if (edited_contribution === null) {
+                                    // remove the contribution
+                                    set_contributions(prev_contributions => prev_contributions.filter((_, i) => i !== index));
+                                } else {
+                                    // change the contribution
+                                    set_contributions(prev_contributions => {
+                                        const next_contributions = [...prev_contributions];
+                                        next_contributions[index] = edited_contribution;
+                                        return next_contributions;
                                     });
                                 }
                             }}

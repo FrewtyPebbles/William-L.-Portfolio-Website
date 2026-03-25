@@ -1,7 +1,9 @@
-import LetterRenderer from "@/components/letter_renderer/letter-renderer";
 import TextColorer from "@/components/text-colorer";
 import TextTyper from "@/components/text-typer";
 import Link from "next/link";
+import dynamic from 'next/dynamic';
+import HomeBackground from "@/components/home-background";
+
 
 
 export default function Home() {
@@ -25,7 +27,7 @@ export default function Home() {
                 rounded-sm
                 
               ">
-                <TextTyper className="font-extrabold" text="Computer Scientist" scramble_set={["█", "▓", "▒", "░"]}/> | <TextColorer text="Artist" className="pointer-events-auto font-extrabold"/>
+                <TextTyper className="font-extrabold" text="Computer Scientist" scramble_set={["█", "▓", "▒", "░", "▒", "▓", "█"]}/> | <TextColorer text="Artist" className="pointer-events-auto font-extrabold"/>
               </div>
               <div className="
                 flex flex-row
@@ -66,6 +68,7 @@ export default function Home() {
                       className="
                       transition-all
                       hover:opacity-50
+                      hover:blur-[0.5px]
                       hover:cursor-pointer
                       "
                     />
@@ -76,7 +79,9 @@ export default function Home() {
                       transition-all
                       hover:underline
                       hover:text-gray-400
+                      hover:blur-[0.5px]
                       hover:cursor-pointer
+                      text-white
                       flex items-center justify-center
                       "
                   >
@@ -89,15 +94,36 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <LetterRenderer
-            text={"William Lim"}
-            size={50}
-            canvas_height_multiplier={7}
-            className="
-            w-screen absolute left-0 top-0 z-[-1]
-            flex-1 dark:bg-black  bg-white
-            "
-            />
+        <div className="
+          w-fit
+          p-1
+          dark:text-white
+          text-black
+          backdrop-blur-xs
+          rounded-sm
+          justify-around
+          absolute
+          bottom-0
+          right-0
+        ">
+          background rendered with <a className="
+            transition-all
+            hover:underline
+            hover:text-orange-500
+            hover:blur-[0.5px]
+            hover:cursor-pointer
+            dark:text-orange-300
+            text-orange-700
+          " href="/projects/vanta-engine">Vanta-Engine</a>
+        </div>
+        <HomeBackground className="
+          absolute
+          w-full
+          h-full
+          top-0
+          left-0
+          -z-10
+        "/>
       </div>
     </div>
   );

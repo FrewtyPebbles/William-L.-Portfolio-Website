@@ -4,8 +4,6 @@ import "dotenv/config";
 import { is_prod } from "./src/lib/server-utils";
 import { defineConfig } from "prisma/config";
 
-console.log(process.env.DATABASE_URL);
-
 let config = defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
