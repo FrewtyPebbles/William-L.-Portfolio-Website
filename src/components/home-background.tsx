@@ -1,6 +1,6 @@
 "use client"
 import { Vec3 } from '@vicimpa/glm';
-import React, { useRef, useLayoutEffect, useEffect } from 'react';
+import { useRef, useLayoutEffect } from 'react';
 import Engine, { AssetFile, Camera3D, CubeMapTexture, DirectionalLight, GraphicsManager, Node, Node3D, Object3D, PointLight, Skybox, Texture, TextureType, WebGLUniformType } from "vanta-engine";
 
 interface Props {

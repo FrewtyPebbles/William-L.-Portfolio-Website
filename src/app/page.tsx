@@ -1,7 +1,6 @@
 import TextColorer from "@/components/text-colorer";
 import TextTyper from "@/components/text-typer";
 import Link from "next/link";
-import dynamic from 'next/dynamic';
 import HomeBackground from "@/components/home-background";
 
 

@@ -5,12 +5,24 @@ const nextConfig: NextConfig = {
   /* config options here */
   pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   reactCompiler: true,
-  output: 'standalone'
+  output: 'standalone',
+  webpack(config, { isServer }) {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        child_process: false,
+        crypto: false,
+        url: false,
+      };
+    }
+    return config;
+  },
 };
 
 
 const withMDX = createMDX({
-  // 2. Add any remark or rehype plugins here for extra features (like GFM)
   options: {
     remarkPlugins: [],
     rehypePlugins: [],
