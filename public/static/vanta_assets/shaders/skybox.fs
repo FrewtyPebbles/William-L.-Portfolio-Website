@@ -11,7 +11,7 @@ uniform bool is_dark_mode;
 
 void main() {
     fragColor = texture(skybox_texture, v_texCoord);
-    if (is_dark_mode) {
+    if (!is_dark_mode) {
         fragColor.rgb = 1.0 - fragColor.rgb;
     }
 }

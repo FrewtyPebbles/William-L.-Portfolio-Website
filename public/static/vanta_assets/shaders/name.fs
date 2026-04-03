@@ -2,10 +2,6 @@
 precision highp float;
 precision lowp sampler2DArrayShadow;
 
-uniform mediump int directional_lights_count;
-uniform mediump int point_lights_count;
-uniform mediump int spot_lights_count;
-
 #define N_DIRECTIONAL_LIGHTS 10
 #define N_POINT_LIGHTS 10
 #define N_SPOT_LIGHTS 10
@@ -78,25 +74,34 @@ struct DirectionalLight {
     float specular;
 };
 
-uniform PointLight point_lights[N_POINT_LIGHTS];
+layout(std140) uniform u_global {
+    mediump int directional_lights_count;
+    mediump int point_lights_count;
+    mediump int spot_lights_count;
 
-uniform SpotLight spot_lights[N_SPOT_LIGHTS];
+    PointLight point_lights[N_POINT_LIGHTS];
 
-uniform DirectionalLight directional_lights[N_DIRECTIONAL_LIGHTS];
+    SpotLight spot_lights[N_SPOT_LIGHTS];
 
-uniform Material material;
+    DirectionalLight directional_lights[N_DIRECTIONAL_LIGHTS];
+    
+    Environment environment;
+    
+    vec2 shadow_map_size;
 
-uniform Environment environment;
+    mat4 u_directional_light_space_matrix[N_DIRECTIONAL_LIGHTS];
+    mat4 u_point_light_space_matrix[N_POINT_LIGHTS * 6];
+    vec3 camera_position;
+};
 
-uniform vec3 camera_position;
+layout(std140) uniform u_object {
+    Material material;
+};
+
 
 uniform sampler2DArrayShadow directional_light_shadow_maps;
 uniform sampler2DArrayShadow point_light_shadow_maps;
 
-uniform vec2 shadow_map_size;
-
-uniform mat4 u_directional_light_space_matrix[N_DIRECTIONAL_LIGHTS];
-uniform mat4 u_point_light_space_matrix[N_POINT_LIGHTS * 6];
 
 // DERIVED UNIFORMS
 uniform float time;
@@ -105,6 +110,8 @@ uniform highp sampler2D mask;
 
 uniform float canvas_width;
 uniform float canvas_height;
+
+uniform bool is_dark_mode;
 
 float L(PointLight light);
 float L(DirectionalLight light);
@@ -142,9 +149,11 @@ void main() {
 
     vec3 lighting = calculate_lighting(base_color);
 
-    base_color.rgb = environment.ambient_light * base_color.rgb + lighting;
+    if (is_dark_mode)
+        base_color.rgb = environment.ambient_light * base_color.rgb + lighting;
+    else
+        base_color.rgb = 0.5 - (environment.ambient_light * base_color.rgb + lighting);
 
-    
     base_color = hex_mask_effect(base_color);
 
     // set alpha to grayscale shadow value

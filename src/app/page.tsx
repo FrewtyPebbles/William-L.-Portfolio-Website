@@ -7,7 +7,7 @@ import HomeBackground from "@/components/home-background";
 
 export default function Home() {
   return (
-    <div className="h-full w-full top-0">
+    <div className="h-full w-full fixed top-0">
       <div className="h-full w-full">
         <div className="absolute top-0 w-full h-full">
           <div className="
@@ -24,9 +24,10 @@ export default function Home() {
                 text-white
                 backdrop-blur-xs
                 rounded-sm
-                
+                flex flex-wrap
+                justify-center
               ">
-                <TextTyper className="font-extrabold" text="Computer Scientist" scramble_set={["█", "▓", "▒", "░", "▒", "▓", "█"]}/> | <TextColorer text="Artist" className="pointer-events-auto font-extrabold"/>
+                <TextTyper className="font-extrabold inline-block" text="Computer Scientist" scramble_set={["█", "▓", "▒", "░", "▒", "▓", "█"]}/> <span>/</span> <TextColorer text="Artist" className="pointer-events-auto font-extrabold inline-block"/>
               </div>
               <div className="
                 flex flex-row

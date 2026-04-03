@@ -1,7 +1,7 @@
 "use client"
 import { Vec3 } from '@vicimpa/glm';
 import { useRef, useLayoutEffect } from 'react';
-import Engine, { AssetFile, Camera3D, CubeMapTexture, DirectionalLight, GraphicsManager, Node, Node3D, Object3D, PointLight, Skybox, Texture, TextureType, WebGLUniformType } from "vanta-engine";
+import Engine, { ArrayMember, AssetFile, Camera3D, CubeMapTexture, DirectionalLight, GraphicsManager, Node, Node3D, Object3D, PointLight, Skybox, Texture, TextureType, WebGLUniformType } from "vanta-engine";
 
 interface Props {
     className?:string
@@ -17,10 +17,14 @@ const HomeBackground = ({className}:Props) => {
         const match_media = window.matchMedia('(prefers-color-scheme: dark)');
 
         const mq_cb = (event:MediaQueryListEvent, gm:GraphicsManager) => {
-            const color_scheme = event.matches ? "light" : "dark";
-            gm.use_shader("skybox_shader")
-            gm.set_uniform("is_dark_mode", color_scheme == "dark", false, true);
+            const color_scheme = event.matches ? "dark" : "light";
+            gm.use_shader("skybox_shader", true)
+            gm.write_uniform("is_dark_mode", color_scheme == "dark", false, true);
             gm.clear_shader()
+            gm.use_shader("name_shader", true)
+            gm.write_uniform("is_dark_mode", color_scheme == "dark", false, true);
+            gm.clear_shader()
+            console.log(color_scheme);
         }
 
         // ENGINE STARTUP FUNCTION
@@ -50,6 +54,7 @@ const HomeBackground = ({className}:Props) => {
             name_shader_prog.add_uniform("time", WebGLUniformType.F);
             name_shader_prog.add_uniform("canvas_height", WebGLUniformType.F);
             name_shader_prog.add_uniform("canvas_width", WebGLUniformType.F);
+            name_shader_prog.add_uniform("is_dark_mode", WebGLUniformType.B);
 
             // SHADOWS
             name_shader_prog.add_uniform("depth_cubemap", WebGLUniformType.TEXTURE_CUBE_MAP);
@@ -59,56 +64,66 @@ const HomeBackground = ({className}:Props) => {
             name_shader_prog.add_uniform("u_view", WebGLUniformType.F4M);
             name_shader_prog.add_uniform("u_projection", WebGLUniformType.F4M);
 
-            // environment
-            name_shader_prog.add_uniform("environment.ambient_light", WebGLUniformType.F3V);
+            // GLOBAL STUFF
+            name_shader_prog.add_ubo("u_global", {
+                directional_lights_count: WebGLUniformType.I,
+                point_lights_count: WebGLUniformType.I,
+                spot_lights_count: WebGLUniformType.I,
+                point_lights: new ArrayMember({
+                    position: WebGLUniformType.F3V,
+                    color: WebGLUniformType.F3V,
+                    range: WebGLUniformType.F,
+                    energy: WebGLUniformType.F,
+                    
+                    ambient: WebGLUniformType.F,
+                    diffuse: WebGLUniformType.F,
+                    specular: WebGLUniformType.F,
+                }, 10),
+                spot_lights: new ArrayMember({
+                    position: WebGLUniformType.F3V,
+                    color: WebGLUniformType.F3V,
+                    rotation: WebGLUniformType.F4M,
+                    energy: WebGLUniformType.F,
+                    range: WebGLUniformType.F,
+                    cookie_radius: WebGLUniformType.F,
+                    
+                    ambient: WebGLUniformType.F,
+                    diffuse: WebGLUniformType.F,
+                    specular: WebGLUniformType.F,
+                }, 10),
+                directional_lights: new ArrayMember({
+                    rotation: WebGLUniformType.F4M,
+                    color: WebGLUniformType.F3V,
+                    energy: WebGLUniformType.F,
+                    
+                    ambient: WebGLUniformType.F,
+                    diffuse: WebGLUniformType.F,
+                    specular: WebGLUniformType.F,
+                }, 10),
+                environment: {
+                    ambient_light: WebGLUniformType.F3V,
+                },
+                shadow_map_size: WebGLUniformType.F2V,
+                u_directional_light_space_matrix: new ArrayMember(WebGLUniformType.F4M, 10),
+                u_point_light_space_matrix: new ArrayMember(WebGLUniformType.F4M, 60),
+                camera_position: WebGLUniformType.F3V
+            });
 
-            // camera
-            name_shader_prog.add_uniform("camera_position", WebGLUniformType.F3V);
+            name_shader_prog.add_ubo("u_object", {
+                material: {
+                    has_normal_texture: WebGLUniformType.B,
+                    has_albedo_texture: WebGLUniformType.B,
+                    albedo: WebGLUniformType.F3V,
+                    has_metalic_texture: WebGLUniformType.B,
+                    metalic: WebGLUniformType.F,
+                    has_roughness_texture: WebGLUniformType.B,
+                    roughness: WebGLUniformType.F,
+                    has_ao_texture: WebGLUniformType.B,
+                    ao: WebGLUniformType.F,
+                }
+            });
 
-            // lights
-            name_shader_prog.add_uniform("point_lights_count", WebGLUniformType.I);
-            name_shader_prog.add_uniform("spot_lights_count", WebGLUniformType.I);
-            name_shader_prog.add_uniform("directional_lights_count", WebGLUniformType.I);
-
-            /// point lights
-            name_shader_prog.add_uniform("point_lights[].position", WebGLUniformType.F3V);
-            name_shader_prog.add_uniform("point_lights[].color", WebGLUniformType.F3V);
-            name_shader_prog.add_uniform("point_lights[].range", WebGLUniformType.F);
-            name_shader_prog.add_uniform("point_lights[].energy", WebGLUniformType.F);
-            name_shader_prog.add_uniform("point_lights[].ambient", WebGLUniformType.F);
-            name_shader_prog.add_uniform("point_lights[].diffuse", WebGLUniformType.F);
-            name_shader_prog.add_uniform("point_lights[].specular", WebGLUniformType.F);
-
-            /// spot lights
-            name_shader_prog.add_uniform("spot_lights[].position", WebGLUniformType.F3V);
-            name_shader_prog.add_uniform("spot_lights[].color", WebGLUniformType.F3V);
-            name_shader_prog.add_uniform("spot_lights[].rotation", WebGLUniformType.F4M);
-            name_shader_prog.add_uniform("spot_lights[].range", WebGLUniformType.F);
-            name_shader_prog.add_uniform("spot_lights[].energy", WebGLUniformType.F);
-            name_shader_prog.add_uniform("spot_lights[].cookie_radius", WebGLUniformType.F);
-            name_shader_prog.add_uniform("spot_lights[].ambient", WebGLUniformType.F);
-            name_shader_prog.add_uniform("spot_lights[].diffuse", WebGLUniformType.F);
-            name_shader_prog.add_uniform("spot_lights[].specular", WebGLUniformType.F);
-
-            /// directional lights
-            name_shader_prog.add_uniform("directional_lights[].rotation", WebGLUniformType.F4M);
-            name_shader_prog.add_uniform("directional_lights[].color", WebGLUniformType.F3V);
-            name_shader_prog.add_uniform("directional_lights[].energy", WebGLUniformType.F);
-            name_shader_prog.add_uniform("directional_lights[].ambient", WebGLUniformType.F);
-            name_shader_prog.add_uniform("directional_lights[].diffuse", WebGLUniformType.F);
-            name_shader_prog.add_uniform("directional_lights[].specular", WebGLUniformType.F);
-
-            // material
-            name_shader_prog.add_uniform("material.has_normal_texture", WebGLUniformType.B);
-            name_shader_prog.add_uniform("material.has_albedo_texture", WebGLUniformType.B);
-            name_shader_prog.add_uniform("material.albedo", WebGLUniformType.F3V);
-            name_shader_prog.add_uniform("material.has_metalic_texture", WebGLUniformType.B);
-            name_shader_prog.add_uniform("material.metalic", WebGLUniformType.F);
-            name_shader_prog.add_uniform("material.has_roughness_texture", WebGLUniformType.B);
-            name_shader_prog.add_uniform("material.roughness", WebGLUniformType.F);
-            name_shader_prog.add_uniform("material.has_ao_texture", WebGLUniformType.B);
-            name_shader_prog.add_uniform("material.ao", WebGLUniformType.F);
-
+            // Material Textures
             name_shader_prog.add_uniform("material_texture_albedo", WebGLUniformType.TEXTURE_2D);
             name_shader_prog.add_uniform("material_texture_normal", WebGLUniformType.TEXTURE_2D);
             name_shader_prog.add_uniform("material_texture_metalic", WebGLUniformType.TEXTURE_2D);
@@ -116,11 +131,8 @@ const HomeBackground = ({className}:Props) => {
             name_shader_prog.add_uniform("material_texture_ao", WebGLUniformType.TEXTURE_2D);
 
             // shadows
-            name_shader_prog.add_uniform("u_directional_light_space_matrix[]", WebGLUniformType.F4M);
-            name_shader_prog.add_uniform("u_point_light_space_matrix[]", WebGLUniformType.F4M);
             name_shader_prog.add_uniform("directional_light_shadow_maps", WebGLUniformType.SHADOW_2D_ARRAY);
             name_shader_prog.add_uniform("point_light_shadow_maps", WebGLUniformType.SHADOW_2D_ARRAY);
-            name_shader_prog.add_uniform("shadow_map_size", WebGLUniformType.F2V);
 
             name_shader_prog.build()
 
@@ -144,15 +156,25 @@ const HomeBackground = ({className}:Props) => {
             await name.set_lua_file("/static/vanta_assets/scripts/name.lua");
 
             let mask_texture = new Texture(gm, "mask_texture", await engine.UTIL.load_image("/static/vanta_assets/textures/hex_data_texture.png"), TextureType.COLOR, {});
-            gm.use_shader("name_shader")
-            gm.set_uniform("mask", mask_texture, false, true);
+            gm.use_shader("name_shader", true)
+            gm.write_uniform("mask", mask_texture, false, true);
             gm.clear_shader()
 
             const render_cb = (node: Node, engine: Engine, time: number, delta_time: number) => {
                 gm.set_uniform("time", time);
                 const canv_rect = canvas_ref.current?.getBoundingClientRect();
-                gm.set_uniform("canvas_width", canv_rect?.width);
-                gm.set_uniform("canvas_height", canv_rect?.height);
+                if (canv_rect !== undefined) {
+                    gm.set_uniform("canvas_width", canv_rect.width);
+                    gm.set_uniform("canvas_height", canv_rect.height);
+                }
+            }
+
+            name.on_update_callback = (node, engine, time, delta_time) => {
+                const canv_rect = canvas_ref.current!.getBoundingClientRect();
+                
+                if (canv_rect !== undefined) {
+                    name.scale = new Vec3(90 * canv_rect.width / canv_rect.height);
+                }
             }
 
             if (name instanceof Object3D) {
@@ -193,10 +215,13 @@ const HomeBackground = ({className}:Props) => {
             // SET SKYBOX DARKMODE UNIFORM:
             match_media.addEventListener('change', (ev)=>mq_cb(ev, gm));
 
-            const darkModeMql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-            const color_scheme = darkModeMql.matches ? "light" : "dark";
-            gm.use_shader("skybox_shader")
-            gm.set_uniform("is_dark_mode", color_scheme == "dark", false, true);
+            const dark_mode = match_media.matches;
+            const color_scheme = dark_mode ? "dark" : "light";
+            gm.use_shader("skybox_shader", true)
+            gm.write_uniform("is_dark_mode", color_scheme == "dark", false, true);
+            gm.clear_shader()
+            gm.use_shader("name_shader", true)
+            gm.write_uniform("is_dark_mode", color_scheme == "dark", false, true);
             gm.clear_shader()
 
             // CREATE LIGHTS AND SET ROOT NODE
@@ -230,7 +255,6 @@ const HomeBackground = ({className}:Props) => {
             point_light_back.position = new Vec3(0, -0.3, 0.5)
             directional_light.rotation.rotateY(-90 * Math.PI/180)
             directional_light.rotation.rotateZ(30 * Math.PI/180)
-            name.scale = new Vec3(150);
             engine.main_scene.main_camera_3d.position = new Vec3(0,0,1).mul(500);
             // engine.main_scene.main_camera_3d.rotation = name.rotation
         }

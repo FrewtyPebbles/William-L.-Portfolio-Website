@@ -2,10 +2,6 @@
 precision highp float;
 precision lowp sampler2DArrayShadow;
 
-uniform mediump int directional_lights_count;
-uniform mediump int point_lights_count;
-uniform mediump int spot_lights_count;
-
 #define N_DIRECTIONAL_LIGHTS 10
 #define N_POINT_LIGHTS 10
 #define N_SPOT_LIGHTS 10
@@ -19,7 +15,6 @@ out vec3 v_normal;
 out vec2 v_uv;
 out vec4 v_frag_pos;
 out vec4 v_clip_pos;
-
 
 // Uniform MVP matrix
 uniform mat4 u_model;
