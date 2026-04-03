@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/navigation-menu"
 import { Project, Resume } from "@/generated/prisma";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { get_asset_url } from "@/lib/utils";
 import Link from "next/link";
 
 // TODO: Dropdown data should come from database
@@ -58,7 +59,7 @@ export function NavBar({projects, resumes, className} : {projects:Project[], res
                         <ListItem
                           key={itemKey}
                           title={resume.title}
-                          href={resume.src}
+                          href={get_asset_url(resume.src)}
                         >
                           {resume.nav_description}
                         </ListItem>
