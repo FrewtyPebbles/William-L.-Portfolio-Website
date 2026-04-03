@@ -15,7 +15,8 @@ const nextConfig: NextConfig = {
     }
   },
   allowedDevOrigins: [
-    "quad-kodak-speech-appointment.trycloudflare.com"
+    "quad-kodak-speech-appointment.trycloudflare.com",
+    'gather-mailto-periodically-detect.trycloudflare.com'
   ],
   webpack(config, { isServer }) {
     if (!isServer) {
