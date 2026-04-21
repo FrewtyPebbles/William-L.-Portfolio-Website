@@ -15,14 +15,7 @@ resource "aws_security_group" "ec2_sg" {
     prefix_list_ids = [data.aws_ec2_managed_prefix_list.cloudfront.id]
   }
 
-  # Remove this in prod vvv
-  ingress {
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = [aws_security_group.bastion_sg.id]
-  }
-  # ^^^ Remove this in prod
+
 
   egress {
     from_port   = 0
