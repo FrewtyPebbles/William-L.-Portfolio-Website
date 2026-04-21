@@ -113,6 +113,38 @@ export async function POST(req: Request) {
     }
   }
   
+  let resolvedContributions: any[] = [];
+  for (let contribution of contributions) {
+    let existingContributor = await prisma.contributor.findFirst({
+      where: {
+        OR: [
+          { name: contribution.contributor.name },
+          { githubUserName: contribution.contributor.githubUserName }
+        ]
+      }
+    });
+
+    let contributorId;
+    if (existingContributor) {
+      contributorId = existingContributor.id;
+    } else {
+      const newContributor = await prisma.contributor.create({
+        data: {
+          name: contribution.contributor.name,
+          githubUserName: contribution.contributor.githubUserName,
+        }
+      });
+      contributorId = newContributor.id;
+    }
+
+    resolvedContributions.push({
+      id: contribution.id,
+      level: contribution.level,
+      description: contribution.description,
+      contributorId: contributorId
+    });
+  }
+
   return NextResponse.json(
     await prisma.project.create({ data:{
         title,
@@ -132,17 +164,13 @@ export async function POST(req: Request) {
           },
         },
         contributions:{
-          create: contributions.map((contribution) => ({
+          create: resolvedContributions.map((contribution) => ({
             level: contribution.level,
             description: contribution.description,
             contributor: {
-              connectOrCreate: {
-                where: { githubUserName: contribution.contributor.githubUserName },
-                create: {
-                  name: contribution.contributor.name,
-                  githubUserName: contribution.contributor.githubUserName,
-                },
-              },
+              connect: {
+                id: contribution.contributorId
+              }
             },
           })),
         }
@@ -272,6 +300,38 @@ export async function PUT(req: Request) {
   }
   
 
+  let resolvedContributions: any[] = [];
+  for (let contribution of contributions) {
+    let existingContributor = await prisma.contributor.findFirst({
+      where: {
+        OR: [
+          { name: contribution.contributor.name },
+          { githubUserName: contribution.contributor.githubUserName }
+        ]
+      }
+    });
+
+    let contributorId;
+    if (existingContributor) {
+      contributorId = existingContributor.id;
+    } else {
+      const newContributor = await prisma.contributor.create({
+        data: {
+          name: contribution.contributor.name,
+          githubUserName: contribution.contributor.githubUserName,
+        }
+      });
+      contributorId = newContributor.id;
+    }
+
+    resolvedContributions.push({
+      id: contribution.id,
+      level: contribution.level,
+      description: contribution.description,
+      contributorId: contributorId
+    });
+  }
+
   const imageIdsToKeep = images.map(img => img.id).filter(Boolean);
   const linkIdsToKeep = links.map(link => link.id).filter(Boolean);
   const contributionIdsToKeep = contributions.map(contribution => contribution.id).filter(Boolean);
@@ -324,35 +384,20 @@ export async function PUT(req: Request) {
           deleteMany: {
             id: { notIn: contributionIdsToKeep }
           },
-          upsert: contributions.map((contribution) => ({
+          upsert: resolvedContributions.map((contribution) => ({
             where: { id: contribution.id || -1 },
             update: {
               level: contribution.level,
               description: contribution.description,
               contributor: {
-                upsert: {
-                  where: { githubUserName: contribution.contributor.githubUserName },
-                  update: { 
-                    name: contribution.contributor.name 
-                  },
-                  create: {
-                    name: contribution.contributor.name,
-                    githubUserName: contribution.contributor.githubUserName,
-                  },
-                },
+                connect: { id: contribution.contributorId }
               },
             },
             create: {
               level: contribution.level,
               description: contribution.description,
               contributor: {
-                connectOrCreate: {
-                  where: { githubUserName: contribution.contributor.githubUserName },
-                  create: {
-                    name: contribution.contributor.name,
-                    githubUserName: contribution.contributor.githubUserName,
-                  },
-                },
+                connect: { id: contribution.contributorId }
               },
             }
           }))
