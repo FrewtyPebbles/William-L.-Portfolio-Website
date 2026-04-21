@@ -1,11 +1,7 @@
 services:
   db:
     image: postgres:latest
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d portfolio_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+    command: ["postgres", "-c", "log_connections=on", "-c", "log_disconnections=on"]
     restart: always
     environment:
       POSTGRES_USER: user
@@ -16,6 +12,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
   web:
+    depends_on:
+      db:
+        condition: service_healthy
     build:
       context: .
       args:
