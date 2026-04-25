@@ -10,7 +10,7 @@ run('docker rm temp-db', true);
 run('docker run --name temp-db ' +
     '-e POSTGRES_USER=user -e POSTGRES_PASSWORD=password -e POSTGRES_DB=portfoliodb ' +
     '--health-cmd "pg_isready -U user -d portfoliodb" ' +
-    '--health-interval 1m --health-retries 10 ' +
+    '--health-interval 1s --health-retries 10 ' +
     '-p 5432:5432 -d postgres ' + 
     '-c log_connections=on -c log_disconnections=on');
 

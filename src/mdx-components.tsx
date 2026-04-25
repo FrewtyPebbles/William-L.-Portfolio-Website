@@ -117,6 +117,18 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       </ul>
     ),
 
+    ol: ({ children }) => (
+      <ol className='list-decimal list-inside p-3 flex flex-col gap-3'>
+        {children}
+      </ol>
+    ),
+
+    li: ({ children }) => (
+      <li className='pl-2'>
+        {children}
+      </li>
+    ),
+
     ...components, // Merge with existing components
   }
 }
