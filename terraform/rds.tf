@@ -20,8 +20,10 @@ resource "aws_rds_cluster" "portfolio_db" {
 
   serverlessv2_scaling_configuration {
     min_capacity             = 0.0 # scale to zero
-    max_capacity             = 1.0 # Minimum capacity
+    max_capacity             = 1.0
   }
+
+  enable_http_endpoint = true # enable Data API
 }
 
 resource "aws_rds_cluster_instance" "portfolio_instance" {
