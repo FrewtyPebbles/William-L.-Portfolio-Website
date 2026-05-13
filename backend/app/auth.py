@@ -1,16 +1,13 @@
-import os
 import boto3
-
-COGNITO_USER_POOL_ID = os.environ.get("COGNITO_USER_POOL_ID", "")
-COGNITO_CLIENT_ID = os.environ.get("COGNITO_CLIENT_ID", "")
+from .settings import settings
 
 cognito = boto3.client("cognito-idp")
 
 
 def admin_login(username: str, password: str) -> dict:
     response = cognito.admin_initiate_auth(
-        UserPoolId=COGNITO_USER_POOL_ID,
-        ClientId=COGNITO_CLIENT_ID,
+        UserPoolId=settings.COGNITO_USER_POOL_ID,
+        ClientId=settings.COGNITO_CLIENT_ID,
         AuthFlow="ADMIN_USER_PASSWORD_AUTH",
         AuthParameters={
             "USERNAME": username,
@@ -20,8 +17,8 @@ def admin_login(username: str, password: str) -> dict:
 
     if "ChallengeName" in response and response["ChallengeName"] == "NEW_PASSWORD_REQUIRED":
         challenge_response = cognito.admin_respond_to_auth_challenge(
-            UserPoolId=COGNITO_USER_POOL_ID,
-            ClientId=COGNITO_CLIENT_ID,
+            UserPoolId=settings.COGNITO_USER_POOL_ID,
+            ClientId=settings.COGNITO_CLIENT_ID,
             ChallengeName="NEW_PASSWORD_REQUIRED",
             ChallengeResponses={
                 "USERNAME": username,

@@ -1,29 +1,40 @@
-import os
 import time
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import NullPool
 from sqlalchemy.exc import OperationalError
+from .settings import settings
 
-DB_NAME = os.environ.get("DB_NAME", "portfoliodb")
-AURORA_CLUSTER_ARN = os.environ.get("AURORA_CLUSTER_ARN", "")
-AURORA_SECRET_ARN = os.environ.get("AURORA_SECRET_ARN", "")
+IS_DEV = not settings.AURORA_CLUSTER_ARN or not settings.AURORA_SECRET_ARN
 
-DATABASE_URL = f"postgresql+auroradataapi://:@/{DB_NAME}"
+if IS_DEV:
+    import pathlib
+    _db_dir = pathlib.Path(__file__).resolve().parent.parent / ".dev_data"
+    _db_dir.mkdir(parents=True, exist_ok=True)
+    DATABASE_URL = f"sqlite:///{_db_dir / 'dev.db'}"
+    engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+else:
+    DATABASE_URL = f"postgresql+auroradataapi://:@/{settings.DB_NAME}"
+    engine = create_engine(
+        DATABASE_URL,
+        poolclass=NullPool,
+        connect_args=dict(
+            aurora_cluster_arn=settings.AURORA_CLUSTER_ARN,
+            secret_arn=settings.AURORA_SECRET_ARN,
+        ),
+    )
 
-engine = create_engine(
-    DATABASE_URL,
-    poolclass=NullPool,
-    connect_args=dict(
-        aurora_cluster_arn=AURORA_CLUSTER_ARN,
-        secret_arn=AURORA_SECRET_ARN,
-    ),
-)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 MAX_DB_RETRIES = 5
 DB_RETRY_BASE_DELAY = 1
+
+
+def init_db():
+    """Create all tables. No-op in prod (managed by RDS/Aurora)."""
+    if IS_DEV:
+        Base.metadata.create_all(bind=engine)
 
 
 def get_db():

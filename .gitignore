@@ -5,6 +5,7 @@
 /backend/*.pyc
 /backend/lambda.zip
 /backend/.vendor
+/backend/.dev_data
 
 # builds
 /frontend/dist
@@ -38,3 +39,5 @@ yarn-error.log*
 # packer (removed but keep rule)
 /packer/secret.auto.pkrvars.hcl
 /packer/tmp
+/.venv
+*.pyc

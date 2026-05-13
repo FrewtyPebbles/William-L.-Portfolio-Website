@@ -1,11 +1,8 @@
-import os
 import boto3
 from botocore.exceptions import ClientError
+from .settings import settings
 
-S3_BUCKET_NAME = os.environ.get("S3_BUCKET_NAME", "")
-S3_REGION = os.environ.get("S3_REGION", "us-west-1")
-
-s3_client = boto3.client("s3", region_name=S3_REGION)
+s3_client = boto3.client("s3", region_name=settings.S3_REGION)
 
 
 def get_asset_s3_url(file_name: str) -> str:
@@ -14,7 +11,7 @@ def get_asset_s3_url(file_name: str) -> str:
 
 def s3_upload_file(file_name: str, content: bytes) -> bool:
     try:
-        s3_client.put_object(Bucket=S3_BUCKET_NAME, Key=file_name, Body=content)
+        s3_client.put_object(Bucket=settings.S3_BUCKET_NAME, Key=file_name, Body=content)
         return True
     except ClientError as err:
         print(f"AWS S3 s3_upload_file error: {err}")
@@ -23,7 +20,7 @@ def s3_upload_file(file_name: str, content: bytes) -> bool:
 
 def s3_delete_file(file_name: str) -> bool:
     try:
-        s3_client.delete_object(Bucket=S3_BUCKET_NAME, Key=file_name)
+        s3_client.delete_object(Bucket=settings.S3_BUCKET_NAME, Key=file_name)
         return True
     except ClientError as err:
         print(f"AWS S3 s3_delete_file error: {err}")
