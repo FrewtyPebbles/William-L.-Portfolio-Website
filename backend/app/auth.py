@@ -1,10 +1,20 @@
 import boto3
 from .settings import settings
 
-cognito = boto3.client("cognito-idp")
+_IS_DEV = not settings.COGNITO_USER_POOL_ID or not settings.COGNITO_CLIENT_ID
+
+if not _IS_DEV:
+    cognito = boto3.client("cognito-idp")
 
 
 def admin_login(username: str, password: str) -> dict:
+    if _IS_DEV:
+        return {
+            "AccessToken": "dev-token",
+            "ExpiresIn": 86400,
+            "TokenType": "Bearer",
+        }
+
     response = cognito.admin_initiate_auth(
         UserPoolId=settings.COGNITO_USER_POOL_ID,
         ClientId=settings.COGNITO_CLIENT_ID,
@@ -22,7 +32,7 @@ def admin_login(username: str, password: str) -> dict:
             ChallengeName="NEW_PASSWORD_REQUIRED",
             ChallengeResponses={
                 "USERNAME": username,
-                "NEW_PASSWORD": password,
+                "PASSWORD": password,
             },
             Session=response["Session"],
         )

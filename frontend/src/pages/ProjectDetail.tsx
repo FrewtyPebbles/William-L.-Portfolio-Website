@@ -95,7 +95,7 @@ function ImageCarousel({ images }: { images: ProjectSubImage[] }) {
   return (
     <div className='flex overflow-x-auto gap-2 p-2'>
       {images.map((img, i) => (
-        <img key={i} src={img.src} alt={img.title || ''} className='max-h-64 rounded-sm' />
+        <img key={i} src={img.src.startsWith("http") ? img.src : `/static/uploads/${img.src}`} alt={img.title || ''} className='max-h-64 rounded-sm' />
       ))}
     </div>
   );

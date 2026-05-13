@@ -16,6 +16,17 @@ def required(msg: str):
     raise HTTPException(status_code=400, detail=msg)
 
 
+def _parse_json_items(raw_list: list[str]) -> list[dict]:
+    items = []
+    for raw in raw_list:
+        parsed = json.loads(raw)
+        if isinstance(parsed, dict):
+            items.append(parsed)
+        elif isinstance(parsed, list):
+            items.extend(el for el in parsed if isinstance(el, dict))
+    return items
+
+
 # --- LOGIN ---
 
 class LoginRequest(BaseModel):
@@ -55,30 +66,34 @@ def list_projects(db: Session = Depends(get_db)):
 def _resolve_contributions(contributions_raw: list[str], db: Session):
     resolved = []
     for raw in contributions_raw:
-        c = json.loads(raw)
-        level = c.get("level", "EVERYTHING")
-        description = c.get("description", "")
-        contributor_data = c.get("contributor", {})
-        name = contributor_data.get("name", "")
-        github = contributor_data.get("githubUserName", "")
+        parsed = json.loads(raw)
+        items = parsed if isinstance(parsed, list) else [parsed]
+        for c in items:
+            if not isinstance(c, dict):
+                continue
+            level = c.get("level", "EVERYTHING")
+            description = c.get("description", "")
+            contributor_data = c.get("contributor", {})
+            name = contributor_data.get("name", "")
+            github = contributor_data.get("githubUserName", "")
 
-        existing = db.query(models.Contributor).filter(
-            (models.Contributor.name == name) | (models.Contributor.githubUserName == github)
-        ).first()
-        if existing:
-            contributor_id = existing.id
-        else:
-            new_contributor = models.Contributor(name=name, githubUserName=github)
-            db.add(new_contributor)
-            db.flush()
-            contributor_id = new_contributor.id
+            existing = db.query(models.Contributor).filter(
+                (models.Contributor.name == name) | (models.Contributor.githubUserName == github)
+            ).first()
+            if existing:
+                contributor_id = existing.id
+            else:
+                new_contributor = models.Contributor(name=name, githubUserName=github)
+                db.add(new_contributor)
+                db.flush()
+                contributor_id = new_contributor.id
 
-        resolved.append({
-            "id": c.get("id", 0),
-            "level": level,
-            "description": description,
-            "contributorId": contributor_id,
-        })
+            resolved.append({
+                "id": c.get("id", 0),
+                "level": level,
+                "description": description,
+                "contributorId": contributor_id,
+            })
     return resolved
 
 
@@ -107,22 +122,18 @@ def create_project(
             s3_upload_file(get_asset_s3_url(file.filename), content)
 
     # parse images
-    parsed_images = []
-    for raw in images:
-        img = json.loads(raw)
+    parsed_images = _parse_json_items(images)
+    for img in parsed_images:
         if not img.get("src"):
             required("image src")
-        parsed_images.append(img)
 
     # parse links
-    parsed_links = []
-    for raw in links:
-        lnk = json.loads(raw)
+    parsed_links = _parse_json_items(links)
+    for lnk in parsed_links:
         if not lnk.get("title"):
             required("link's title")
         if not lnk.get("link"):
             required("link's link field")
-        parsed_links.append(lnk)
 
     resolved = _resolve_contributions(contributions, db)
 
@@ -174,21 +185,17 @@ def update_project(
         raise HTTPException(status_code=404, detail="Project not found")
 
     # parse images
-    parsed_images = []
-    for raw in images:
-        img = json.loads(raw)
+    parsed_images = _parse_json_items(images)
+    for img in parsed_images:
         if not img.get("src"):
             required("image src")
-        parsed_images.append(img)
 
-    parsed_links = []
-    for raw in links:
-        lnk = json.loads(raw)
+    parsed_links = _parse_json_items(links)
+    for lnk in parsed_links:
         if not lnk.get("title"):
             required("link's title")
         if not lnk.get("link"):
             required("link's link field")
-        parsed_links.append(lnk)
 
     resolved = _resolve_contributions(contributions, db)
 

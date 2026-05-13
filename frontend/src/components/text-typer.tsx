@@ -1,51 +1,57 @@
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
+
 
 interface Props {
-  className?: string
-  text: string
-  scramble_set?: string[]
+    text:string;
+    speed_seconds?:number;
+    scramble_set?:Array<string>;
+    className?: string;
 }
 
 const default_set = ['!', '<', '-', '\\', '^', '*', '}', '|', '.', ',', ':', ';', '/', '?', '>', '~', '+', '=', '_', '@', '#', '$', '%', '&', '(', ')', '[', ']', '{', '}']
 
-export default function TextTyper({ className, text, scramble_set = default_set }: Props) {
-  const [displayText, setDisplayText] = useState(text)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  function scramble() {
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    let iterations = 0
-    intervalRef.current = setInterval(() => {
-      setDisplayText(
-        text
-          .split('')
-          .map((char, index) => {
-            if (index < iterations) return text[index]
-            return scramble_set[Math.floor(Math.random() * scramble_set.length)]
-          })
-          .join('')
-      )
-      if (iterations >= text.length) {
-        if (intervalRef.current) clearInterval(intervalRef.current)
-      }
-      iterations += 1 / 3
-    }, 30)
-  }
-
-  useEffect(() => {
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+export default function TextTyper({text, speed_seconds = 0.1, scramble_set = ["0", "|", "!", ";", ":", ",", ".", ",", ":", ";", "!", "|", "?"], className}:Props) {
+    let text_array:Array<Array<string>> = [];
+    let index_array:Array<number> = [];
+    for (let letter of Array.from(text)) {
+        text_array.push([letter, ...scramble_set])
+        index_array.push(0);
     }
-  }, [])
+    
+    const [letterIndexState, setLetterIndexState] = useState<Array<number>>(index_array);
 
-  return (
-    <span
-      className={className}
-      onMouseEnter={scramble}
-    >
-      {displayText}
-    </span>
-  )
+    return (
+        <span className={className}>
+            {Array.from(text_array).map((_, letter_index) => {
+                let index = letterIndexState[letter_index];
+                let letter = text_array[letter_index][index];
+                return (<span className="w-[calc(1em-1px)] text-center inline-block pointer-events-auto" key={letter_index}
+                onMouseMove={() => {
+                    // set to max first
+                    setLetterIndexState(prev => {
+                        const lis = [...prev];
+                        lis[letter_index] = scramble_set.length;
+                        return lis;
+                    });
+
+                    const intervalId = setInterval(() => {
+                        setLetterIndexState(prev => {
+                            const lis = [...prev];
+                            lis[letter_index] -= 1;
+                            if (lis[letter_index] <= 0) {
+                                clearInterval(intervalId); // stop repeating
+                                lis[letter_index] = 0; // clamp at 0
+                            }
+                            return lis;
+                        });
+                    }, 1000 * speed_seconds);
+                }}
+                >
+                    {letter}
+                </span>);
+            })}
+        </span>
+    );
 }

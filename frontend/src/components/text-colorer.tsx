@@ -1,37 +1,42 @@
 "use client"
-
-import { useEffect, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react';
 
 interface Props {
-  className?: string
-  text: string
+  text: string;
+  className?: string; // Tailwind font size class
 }
 
-export default function TextColorer({ className, text }: Props) {
-  const spanRef = useRef<HTMLSpanElement>(null)
-
+export default function TextColorer({text, className}:Props) {
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+    const spanRef = useRef<HTMLSpanElement>(null);
+  // Track mouse globally
   useEffect(() => {
-    function handleMouseMove(e: MouseEvent) {
-      const span = spanRef.current
-      if (!span) return
-      const rect = span.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      const cx = rect.width / 2
-      const cy = rect.height / 2
-      const dx = (x - cx) / cx
-      const dy = (y - cy) / cy
-      const hue = (Math.atan2(dy, dx) * 180) / Math.PI + 180
-      span.style.color = `hsl(${hue}, 100%, 50%)`
-    }
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
 
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+    spanRef.current!.style.backgroundPosition = `${mousePos.x / window.innerWidth * 100}% ${mousePos.y / window.innerHeight * 100}%`;
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [mousePos]);
+
+  const gradientStyle = {
+        background: "linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)",
+        backgroundSize: "600% 600%",
+        backgroundClip: "text" as const,
+        color: "transparent" as const
+    };
 
   return (
-    <span ref={spanRef} className={className}>
-      {text}
+    <span
+      ref={spanRef}
+      style={gradientStyle}
+      className={className}
+    >
+      {Array.from(text).map((letter, ind) => <span key={ind} className='w-[calc(1em-1px)] inline-block text-center font-mono'>
+        {letter}
+      </span>)}
     </span>
-  )
+  );
 }

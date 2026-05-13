@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 
 @theme inline {
+  --font-roboto: "Roboto", sans-serif;
+  --font-montserrat: "Montserrat", sans-serif;
+  --font-space-grotesk: "Space Grotesk", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: "Geist", sans-serif;

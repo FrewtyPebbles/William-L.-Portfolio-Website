@@ -90,7 +90,6 @@ export default function EditProject() {
 
     images.forEach((item) => {
       if (item.file) formData.append('image_files', item.file);
-      else formData.append('image_files', 'null');
       formData.append('images', JSON.stringify(item.image));
     });
 
