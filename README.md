@@ -13,9 +13,3 @@ This is my portfolio website where I show live demos of my web-deployable projec
 # Infrastructure
 
 ![AWS Infrastructure Diagram](/readme_files/portfolio%20aws%20infrastructure%20diagram.png)
-
-## TODO
-
- - Add Amazon ElastiCache
- - Add contact page
- - Add Ansible
