@@ -206,12 +206,20 @@ def update_project(
     project.nav_description = nav_description
     project.full_description = full_description
 
-    # handle image deletions
-    old_images = {img.id: img for img in project.images}
+    # upload new files before any deletions (avoid brief window with no file)
+    for file in image_files:
+        if file.filename:
+            content = file.file.read()
+            s3_upload_file(get_asset_s3_url(file.filename), content)
+
+    # snapshot old image src values before replacing
+    old_src_by_id = {img.id: img.src for img in project.images}
     new_image_ids = {img.get("id") for img in parsed_images if img.get("id")}
-    for img_id, img in old_images.items():
+
+    # delete files for removed images
+    for img_id, img_src in old_src_by_id.items():
         if img_id not in new_image_ids:
-            s3_delete_file(get_asset_s3_url(img.src))
+            s3_delete_file(get_asset_s3_url(img_src))
 
     # replace images
     db.query(models.ProjectSubImage).filter(
@@ -222,6 +230,14 @@ def update_project(
             src=img["src"], title=img.get("title", ""), description=img.get("description", ""),
             projectID=id
         ))
+
+    # delete old files for images whose src changed (file replaced)
+    for img in parsed_images:
+        img_id = img.get("id")
+        if img_id and img_id in old_src_by_id:
+            old_src = old_src_by_id[img_id]
+            if old_src != img["src"]:
+                s3_delete_file(get_asset_s3_url(old_src))
 
     # replace links
     db.query(models.ProjectSubLink).filter(
@@ -242,12 +258,6 @@ def update_project(
             level=cr["level"], description=cr["description"],
             contributorID=cr["contributorId"], projectID=id
         ))
-
-    # upload new files
-    for file in image_files:
-        if file.filename:
-            content = file.file.read()
-            s3_upload_file(get_asset_s3_url(file.filename), content)
 
     db.commit()
     db.refresh(project)
