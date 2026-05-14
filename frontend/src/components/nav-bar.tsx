@@ -22,7 +22,7 @@ export function NavBar({ className }: { className: string }) {
   var resumes_section = <FetchingNavItemSkeleton/>
   
   if (!loading) {
-    projects_section = <ul className="grid gap-2 sm:w-[400px] md:w-[500px] md:grid-cols-1 lg:w-[600px]">
+    projects_section = <ul className="max-h-[300px] overflow-y-auto grid gap-2 sm:w-[400px] md:w-[500px] md:grid-cols-1 lg:w-[600px]">
                 {projects.map((project, itemKey) => (
                   <ListItem
                     key={itemKey}
@@ -33,7 +33,7 @@ export function NavBar({ className }: { className: string }) {
                   </ListItem>
                 ))}
               </ul>
-    resumes_section = <ul className="grid gap-2 sm:w-[400px] md:w-[400px] md:grid-cols-1 lg:w-[400px]">
+    resumes_section = <ul className="max-h-[300px] overflow-y-auto grid gap-2 sm:w-[400px] md:w-[400px] md:grid-cols-1 lg:w-[400px]">
                 {resumes.map((resume, itemKey) => (
                   <ListItem
                     key={itemKey}
