@@ -5,6 +5,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
 
+
 export function usePrefersDark(window: Window) {
   return window.matchMedia('(prefers-color-scheme: dark)').matches;
 }

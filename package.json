@@ -9,6 +9,7 @@
     "lint": "cd frontend && npx tsc --noEmit"
   },
   "devDependencies": {
+    "@types/react-syntax-highlighter": "^15.5.13",
     "concurrently": "^9.2.1"
   }
 }
