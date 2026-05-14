@@ -2,7 +2,7 @@ import time
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import NullPool
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, StatementError
 from .settings import settings
 
 IS_DEV = not settings.AURORA_CLUSTER_ARN or not settings.AURORA_SECRET_ARN
@@ -43,7 +43,7 @@ def get_db():
         try:
             db = SessionLocal()
             db.execute(text("SELECT 1"))
-        except OperationalError as e:
+        except (OperationalError, StatementError) as e:
             last_error = e
             if db:
                 db.close()

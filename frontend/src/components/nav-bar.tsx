@@ -39,6 +39,7 @@ export function NavBar({ className }: { className: string }) {
                     key={itemKey}
                     title={resume.title}
                     to={get_asset_url(resume.src)}
+                    new_tab={true}
                   >
                     {resume.nav_description}
                   </ListItem>
@@ -82,17 +83,33 @@ function ListItem({
   title,
   children,
   to,
+  new_tab = false,
   ...props
-}: React.ComponentPropsWithoutRef<'li'> & { to: string }) {
+}: React.ComponentPropsWithoutRef<'li'> & { to: string, new_tab?:boolean }) {
   return (
     <li {...props}>
       <NavigationMenuLink {...({ asChild: true } as any)}>
-        <Link to={to}>
-          <div className="text-sm leading-none font-medium">{title}</div>
-          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-            {children}
-          </p>
-        </Link>
+        {(() => {
+          if (new_tab) {
+            return <a
+              href={to}
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <div className="text-sm leading-none font-medium">{title}</div>
+              <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                {children}
+              </p>
+            </a>
+          } else {
+            return <Link to={to}>
+              <div className="text-sm leading-none font-medium">{title}</div>
+              <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                {children}
+              </p>
+            </Link>
+          }
+        })()}
       </NavigationMenuLink>
     </li>
   )

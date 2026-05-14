@@ -40,4 +40,5 @@ yarn-error.log*
 /packer/secret.auto.pkrvars.hcl
 /packer/tmp
 /.venv
+*/.stage
 *.pyc
