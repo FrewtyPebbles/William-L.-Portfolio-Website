@@ -1,0 +1,22 @@
+{
+    "title":"Little Bug: An Agentic Local AI Assistant",
+    "slug":"little-bug",
+    "progress":"DEVELOPMENT",
+    "images":[],
+    "links":[
+        {
+            "title":"GitHub Repository",
+            "link":"https://github.com/FrewtyPebbles/Little-Bug-TUI-Based-AI-Assistant/",
+            "description":"This is where the source code for the project can be found."
+        }
+    ],
+    "contributors":[
+        {
+            "level":"EVERYTHING",
+            "github_username":"FrewtyPebbles",
+            "name":"William L.",
+            "description":"Sole Contributor"
+        }
+    ],
+    "nav_description": "A local-first, terminal-based AI assistant built with Ollama and Textual. Interact with local RAG AI models from your terminal."
+}

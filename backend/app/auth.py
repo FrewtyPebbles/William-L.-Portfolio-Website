@@ -1,9 +1,9 @@
 import boto3
 from fastapi import HTTPException, Request
 
-from backend.app import models
-from backend.app.database import SessionLocal
-from .settings import settings
+from app import models
+from app.database import SessionLocal
+from app.settings import settings
 
 _IS_DEV = not settings.COGNITO_USER_POOL_ID or not settings.COGNITO_CLIENT_ID
 

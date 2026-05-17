@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
-from backend.app.auth import admin_login
+from app.auth import admin_login
 
 router = APIRouter()
 

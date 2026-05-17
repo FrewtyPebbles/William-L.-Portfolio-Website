@@ -71,11 +71,11 @@ export default function ProjectDetail() {
           {projectAbout}
         </ReactMarkdown>
       </div>
-      <a href="/api/login">login with google to comment</a>
+      {/* This is the comments section, it is still in development. */}
+      {/* <a href="/api/login">login with google to comment</a>
       <div>
-        {/* Comments */}
         {comments.map((comment, n) => <Comment comment={comment}/>)}
-      </div>
+      </div> */}
     </div>
   );
 }

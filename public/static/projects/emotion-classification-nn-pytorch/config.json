@@ -1,0 +1,27 @@
+{
+    "title":"Face Emotion Classification with PyTorch Convolutional Neural Network",
+    "slug":"emotion-classification-nn-pytorch",
+    "progress":"DEVELOPMENT",
+    "images":[],
+    "links":[
+        {
+            "title":"Neural Network GitHub Repository",
+            "link":"https://github.com/FrewtyPebbles/Emotion-Recognition-AI/",
+            "description":"The code for the neural network can be found here."
+        },
+        {
+            "title":"Demo GitHub Repository",
+            "link":"https://github.com/FrewtyPebbles/opencv_demo",
+            "description":"The code for a dockerized demo app of the neural network can be found here."
+        }
+    ],
+    "contributors":[
+        {
+            "level":"EVERYTHING",
+            "github_username":"FrewtyPebbles",
+            "name":"William L.",
+            "description":"Sole Contributor"
+        }
+    ],
+    "nav_description": "This model uses a convolutional neural network with max pooling to classify images of peoples faces as one of a series of emotions."
+}

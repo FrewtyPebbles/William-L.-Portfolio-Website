@@ -1,0 +1,22 @@
+{
+    "title":"Python to x86 Assembly JIT Compiler and Bindings",
+    "slug":"x86-python-jit-compiler-and-bindings",
+    "progress":"ALPHA",
+    "images":[],
+    "links":[
+        {
+            "title":"GitHub Repository",
+            "link":"https://github.com/FrewtyPebbles/Python-to-x86-Assembly-JIT-Compiler-and-x86-Assembly-Bindings-for-Python/",
+            "description":"This is where the source code for the project can be found."
+        }
+    ],
+    "contributors":[
+        {
+            "level":"EVERYTHING",
+            "github_username":"FrewtyPebbles",
+            "name":"William L.",
+            "description":"Sole Contributor"
+        }
+    ],
+    "nav_description": "x86_64 JIT compiler and bindings for python."
+}

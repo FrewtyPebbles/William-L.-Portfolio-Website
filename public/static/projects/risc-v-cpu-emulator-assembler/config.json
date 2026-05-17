@@ -1,0 +1,22 @@
+{
+    "title":"Bit Level Python RISC-V CPU Emulator and Assembler",
+    "slug":"risc-v-cpu-emulator-assembler",
+    "progress":"DEVELOPMENT",
+    "images":[],
+    "links":[
+        {
+            "title":"GitHub Repository",
+            "link":"https://github.com/FrewtyPebbles/Python-RISC-V-CPU-Emulator/",
+            "description":"This is where the source code for the project can be found."
+        }
+    ],
+    "contributors":[
+        {
+            "level":"EVERYTHING",
+            "github_username":"FrewtyPebbles",
+            "name":"William L.",
+            "description":"Sole Contributor"
+        }
+    ],
+    "nav_description": "This CPU emulator emulates at the bit level with many low level gates emulated. It includes a subset of both RV32I and RV32F.  Proprietary RISC-V assembler included."
+}

@@ -3,9 +3,9 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session, joinedload
-from backend.app.auth import COMMENT_OAUTH, get_current_commenter
-from backend.app.database import SessionLocal, get_db
-from backend.app import models
+from app.auth import COMMENT_OAUTH, get_current_commenter
+from app.database import SessionLocal, get_db
+from app import models
 
 router = APIRouter()
 

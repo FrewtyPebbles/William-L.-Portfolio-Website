@@ -3,7 +3,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.pool import NullPool
 from sqlalchemy.exc import OperationalError, StatementError
-from .settings import settings
+from app.settings import settings
 
 IS_DEV = not settings.AURORA_CLUSTER_ARN or not settings.AURORA_SECRET_ARN
 

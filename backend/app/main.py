@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from mangum import Mangum
-from backend.app.database import init_db
-from backend.app.routes import public, admin
+from app.database import init_db
+from app.routes import public, admin
 from starlette.middleware.sessions import SessionMiddleware
-from backend.app.settings import settings
+from app.settings import settings
 
 app = FastAPI(root_path="/api")
 
