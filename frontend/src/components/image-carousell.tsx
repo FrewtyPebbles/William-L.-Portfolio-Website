@@ -1,17 +1,16 @@
 "use client"
 
-import { get_asset_url } from '@/lib/utils';
+import { get_asset_url, get_project_url } from '@/lib/utils';
+import { ProjectConfig, ProjectImage } from '@/types/project';
 import { useState, useEffect, useRef } from 'react';
 
-export interface ProjectSubImage {
-  id?: number;
-  src: string;
-  title: string;
-  description: string;
-  projectID?: number;
+interface Props {
+  images: ProjectImage[],
+  project: ProjectConfig,
+  className?: string
 }
 
-export default function ImageCarousel({ images, className = "" }: { images: ProjectSubImage[], className?: string }) {
+export default function ImageCarousel({ images, project, className = "" }:Props ) {
   const [activeIndex, setActiveIndex] = useState(0);
   // Controls the overall visibility of the navigation dots and descriptions
   const [showNav, setShowNav] = useState(true);
@@ -72,7 +71,7 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
       >
         {images.map((image, index) => (
           <div 
-            key={image.id || index} 
+            key={index} 
             data-index={index}
             className="
               dark:bg-black
@@ -87,7 +86,7 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
             "
           >
             <img 
-              src={get_asset_url(image.src)} 
+              src={get_project_url(`${project.slug}/${image.path}`)} 
               alt={image.title || `Slide ${index}`} 
               className="absolute inset-0 w-full h-full object-contain" 
               fetchPriority={index === 0 ? "high" : "auto"}
@@ -101,12 +100,12 @@ export default function ImageCarousel({ images, className = "" }: { images: Proj
                 transition-all
                 duration-300
                 w-full
-                flex
-                justify-center
+                text-center
                 p-2
                 ${showNav ? 'opacity-100 top-0' : 'opacity-0 -top-12 pointer-events-none'}
               `}>
-                {image.description}
+                <h4 className='font-bold'>{image.title}</h4>
+                <div>{image.description}</div>
               </div>
             )}
           </div>

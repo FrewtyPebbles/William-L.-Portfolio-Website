@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "concurrently -n frontend,backend -c cyan,green \"cd frontend && npm run dev\" \"cd backend && ..\\.venv\\Scripts\\uvicorn app.main:app --reload --port 8000\"",
     "build": "cd frontend && npm run build",
-    "deploy": "node deploy.mjs",
+    "deploy": "python deploy.py",
     "lint": "cd frontend && npx tsc --noEmit"
   },
   "devDependencies": {

@@ -1,0 +1,58 @@
+{
+    "title":"A Star and UCS GPS Road Navigation Software",
+    "slug":"a-star-and-ucs-gps-navigation-software",
+    "progress":"PROTOTYPING",
+    "images":[
+        {
+            "title":"Test #1 (A*)",
+            "description":"Benchmark : 374 ms",
+            "path":"a_star_fullerton_-8152.207095985362_2495.2867764046973_-8159.574648414691_2491.437884082884(2).png"
+        },
+        {
+            "title":"Test #1 (UCS)",
+            "description":"Benchmark : 446 ms",
+            "path":"ucs_fullerton_-8152.207095985362_2495.2867764046973_-8159.574648414691_2491.437884082884(1).png"
+        },
+        {
+            "title":"Test #2 (A*)",
+            "description":"Benchmark : 103 ms",
+            "path":"a_star_fullerton_-8153.807306255795_2491.020486397002_-8152.061953049231_2491.271865099904.png"
+        },
+        {
+            "title":"Test #2 (UCS)",
+            "description":"Benchmark : 183 ms",
+            "path":"ucs_fullerton_-8153.807306255795_2491.020486397002_-8152.061953049231_2491.271865099904.png"
+        },
+        {
+            "title":"Test #3 (A*)",
+            "description":"Benchmark : 11 ms",
+            "path":"a_star_fullerton_-8156.074590433435_2492.3207273517323_-8155.031864678875_2491.893627238422.png"
+        },
+        {
+            "title":"Test #4 (UCS)",
+            "description":"Benchmark : 21 ms",
+            "path":"ucs_fullerton_-8156.074590433435_2492.3207273517323_-8155.031864678875_2491.893627238422.png"
+        }
+    ],
+    "links":[
+        {
+            "title":"Project Report",
+            "link":"https://walofcode.com/static/uploads/Project%20Report%20-%20CPSC%20481.pdf",
+            "description":"This project report explores the problem this project aims to solve, my approach to solving it, a description of how my prototype worked, our testing methodology, and our comprehensive findings."
+        },
+        {
+            "title":"GitHub Repository",
+            "link":"https://github.com/FrewtyPebbles/A-Star-GPS-Road-Navigation-System/",
+            "description":"This is the GitHub repository where the source code and relevant files for the project can be found."
+        }
+    ],
+    "contributors":[
+        {
+            "level":"EVERYTHING",
+            "github_username":"FrewtyPebbles",
+            "name":"William L.",
+            "description":"Sole Dev/Researcher"
+        }
+    ],
+    "nav_description": "The prototype of an A* and UCS GPS road navigation system."
+}

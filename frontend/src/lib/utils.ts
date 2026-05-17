@@ -14,6 +14,10 @@ export function get_asset_url(file_name: string): string {
   return `/static/uploads/${file_name}`
 }
 
+export function get_project_url(file_name: string): string {
+  return `/static/projects/${file_name}`
+}
+
 const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 export function apiUrl(path: string): string {

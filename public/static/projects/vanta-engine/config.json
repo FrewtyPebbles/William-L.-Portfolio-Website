@@ -1,0 +1,43 @@
+{
+    "title":"Vanta Engine",
+    "slug":"vanta-engine",
+    "progress":"DEVELOPMENT",
+    "images":[
+        {
+            "title":"Portfolio Website Home Page",
+            "description":"The home page is rendered fully using Vanta Engine.",
+            "path":"Screenshot 2026-03-31 175816.png"
+        },
+        {
+            "title":"Pirate Ship Test Scene",
+            "description":"This is my test scene which I use to test new features I am adding to the engine.",
+            "path":"Screenshot 2026-03-31 180613.png"
+        },
+        {
+            "title":"End Developer Code",
+            "description":"Vanta Engine scene objects/nodes can be programmed with Lua and use a web assembly Lua runtime called Wasmoon to run in the browser.",
+            "path":"Screenshot 2026-03-31 180825.png"
+        }
+    ],
+    "links":[
+        {
+            "title":"Vanta Engine GitHub",
+            "link":"https://github.com/FrewtyPebbles/Vanta-3D-Engine",
+            "description":"The Vanta Engine source code."
+        },
+        {
+            "title":"Iris Shader Language GitHub",
+            "link":"https://github.com/FrewtyPebbles/iris_shader_language",
+            "description":"This is the work in progress domain specific shader language being created for the Vanta Engine."
+        }
+    ],
+    "contributors":[
+        {
+            "level":"EVERYTHING",
+            "github_username":"FrewtyPebbles",
+            "name":"William L.",
+            "description":"Sole Contributor"
+        }
+    ],
+    "nav_description": "The Vanta 3D engine is a 3D engine designed with a portability first mindset. The first backend for Vanta is WebGL2 based allowing for great cross platform support."
+}

@@ -23,7 +23,7 @@ export function NavBar({ className }: { className: string }) {
   
   if (!loading) {
     projects_section = <ul className="max-h-[300px] overflow-y-auto grid gap-2 sm:w-[400px] md:w-[500px] md:grid-cols-1 lg:w-[600px]">
-                {projects.map((project, itemKey) => (
+                {Object.entries(projects).map(([project_path, project], itemKey) => (
                   <ListItem
                     key={itemKey}
                     title={project.title}

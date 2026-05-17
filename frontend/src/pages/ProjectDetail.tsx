@@ -2,64 +2,37 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import ImageCarousel, { ProjectSubImage } from '@/components/image-carousell';
 import DropLink, { ProjectSubLink } from '@/components/drop-link';
 import ContributorInfo from '@/components/contributor-info';
 import ProgressIndicator, { ProjectProgress } from '@/components/progress-indicator';
 import { markdownComponents } from '@/lib/markdown-components';
 import remarkGfm from 'remark-gfm'
 import FetchingProjectPageSkeleton from '@/components/fetching-project-page-skeleton';
-
-
-interface Contributor {
-  id: number;
-  name: string;
-  githubUserName: string;
-}
-
-interface Contribution {
-  id: number;
-  level: string;
-  description: string;
-  contributor: Contributor;
-}
-
-interface ProjectSubPage {
-  id: number;
-  slug: string;
-  title: string;
-  nav_description: string;
-  short_description: string;
-  full_description: string;
-}
-
-interface FullProject {
-  id: number;
-  slug: string;
-  title: string;
-  progress: ProjectProgress;
-  nav_description: string;
-  short_description: string;
-  full_description: string;
-  created_at: string;
-  links: ProjectSubLink[];
-  images: ProjectSubImage[];
-  project_sub_pages: ProjectSubPage[];
-  contributions: Contribution[];
-}
+import { get_project_url } from '@/lib/utils';
+import { ProjectConfig } from '@/types/project';
+import ImageCarousel from '@/components/image-carousell';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
-  const [project, setProject] = useState<FullProject | null>(null);
+  const [project, setProject] = useState<ProjectConfig | null>(null);
+  const [projectAbout, setProjectAbout] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!slug) return;
-    fetch(`/api/projects/${slug}`)
+    fetch(get_project_url(`${slug}/config.json`))
       .then(r => r.ok ? r.json() : null)
       .then(data => {
         setProject(data);
-        setLoading(false);
+        
+        // now fetch the about.md
+        fetch(get_project_url(`${slug}/about.md`))
+        .then(r => r.ok ? r.text() : null)
+        .then(data => {
+          setProjectAbout(data);
+          setLoading(false);
+        })
+        .catch(() => setLoading(false));
       })
       .catch(() => setLoading(false));
   }, [slug]);
@@ -81,18 +54,18 @@ export default function ProjectDetail() {
             ))}
           </div>
           <div className='w-fit flex gap-2 justify-end p-1'>
-            {project.contributions.map((contribution, contribution_index) => (
-              <ContributorInfo key={contribution_index} contribution={contribution} />
+            {project.contributors.map((contributor, contribution_index) => (
+              <ContributorInfo key={contribution_index} contribution={contributor} />
             ))}
           </div>
         </div>
       </div>
 
-      <ImageCarousel images={project.images} />
+      <ImageCarousel images={project.images} project={project} />
 
       <div className="p-4 prose dark:prose-invert max-w-none">
         <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-          {project.full_description}
+          {projectAbout}
         </ReactMarkdown>
       </div>
     </div>

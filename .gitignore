@@ -42,3 +42,5 @@ yarn-error.log*
 /.venv
 */.stage
 *.pyc
+uv.lock
+/public/static/projects/projects.json

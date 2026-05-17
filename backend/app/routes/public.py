@@ -1,34 +1,67 @@
-from fastapi import APIRouter, Depends, HTTPException
+from typing import Optional
+
+from fastapi import APIRouter, Depends, Form, HTTPException, Request
 from sqlalchemy.orm import Session, joinedload
-from ..database import get_db
-from .. import models
+from backend.app.auth import get_current_user
+from backend.app.database import SessionLocal, get_db
+from backend.app import models
 
 router = APIRouter()
 
+@router.post("/{project_slug}/comments")
+async def create_comment(
+    project_slug: str,
+    request: Request,
+    content: str = Form(...),
+    parent_id: Optional[int] = Form(None)
+):
+    user = get_current_user(request)
 
-@router.get("/projects")
-def list_projects(db: Session = Depends(get_db)):
-    return db.query(models.Project).all()
+    db = SessionLocal()
 
+    # validate that parent exists to prevent orphan comments
+    if parent_id:
+        parent = db.query(models.Comment).filter(
+            models.Comment.id == parent_id,
+            models.Comment.project_slug == project_slug
+        ).first()
 
-@router.get("/projects/{slug}")
-def get_project(slug: str, db: Session = Depends(get_db)):
-    project = (
-        db.query(models.Project)
-        .options(
-            joinedload(models.Project.images),
-            joinedload(models.Project.links),
-            joinedload(models.Project.project_sub_pages),
-            joinedload(models.Project.contributions).joinedload(models.Contribution.contributor),
-        )
-        .filter(models.Project.slug == slug)
-        .first()
+        if not parent:
+            return {"error": "Parent comment not found"}
+
+    comment = models.Comment(
+        content=content,
+        user_id=user.id,
+        project_slug=project_slug,
+        parent_id=parent_id
     )
-    if not project:
-        raise HTTPException(status_code=404, detail="Project not found")
-    return project
 
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
 
-@router.get("/resumes")
-def list_resumes(db: Session = Depends(get_db)):
-    return db.query(models.Resume).all()
+    return {
+        "id": comment.id,
+        "content": comment.content
+    }
+
+@router.get("/{project_slug}/comments")
+def get_comments(project_slug: str):
+    db = SessionLocal()
+
+    comments = (
+        db.query(models.Comment)
+        .filter(models.Comment.project_slug == project_slug)
+        .all()
+    )
+
+    return [
+        {
+            "id": c.id,
+            "content": c.content,
+            "author": c.user.name,
+            "avatar": c.user.avatar_url,
+            "created_at": c.created_at.isoformat()
+        }
+        for c in comments
+    ]

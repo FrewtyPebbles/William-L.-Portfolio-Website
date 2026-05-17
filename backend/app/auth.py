@@ -1,4 +1,8 @@
 import boto3
+from fastapi import HTTPException, Request
+
+from backend.app import models
+from backend.app.database import SessionLocal
 from .settings import settings
 
 _IS_DEV = not settings.COGNITO_USER_POOL_ID or not settings.COGNITO_CLIENT_ID
@@ -39,3 +43,17 @@ def admin_login(username: str, password: str) -> dict:
         return challenge_response["AuthenticationResult"]
 
     return response["AuthenticationResult"]
+
+# Comments system
+
+def get_current_user(request: Request) -> models.User:
+    user_id = request.session.get("user_id")
+
+    if not user_id:
+        raise HTTPException(status_code=401)
+
+    db = SessionLocal()
+
+    user = db.query(models.User).get(user_id)
+
+    return user

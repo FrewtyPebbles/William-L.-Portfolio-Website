@@ -1,27 +1,16 @@
 "use client"
+import { ProjectContributor } from '@/types/project';
 import { Link } from 'react-router-dom';
 
-export interface Contributor {
-  name: string;
-  githubUserName: string;
-}
-
-export interface FullContribution {
-  id?: number;
-  level: string;
-  description: string;
-  contributor: Contributor;
-}
-
 interface Props {
-    contribution:FullContribution;
+    contribution:ProjectContributor;
 }
 
 
 
 export default function ContributorInfo({contribution}:Props) {
     return (
-        <Link to={`https://github.com/${contribution.contributor.githubUserName}`}>
+        <Link to={`https://github.com/${contribution.github_username}`}>
             <div className='
                 flex
                 h-10
@@ -54,8 +43,8 @@ export default function ContributorInfo({contribution}:Props) {
                     {contribution.description}
                 </div>
                 <img
-                    src={`https://github.com/${contribution.contributor.githubUserName}.png`}
-                    alt={contribution.contributor.githubUserName}
+                    src={`https://github.com/${contribution.github_username}.png`}
+                    alt={contribution.github_username}
                     className='
                     dark:border-white
                     border-black
@@ -102,7 +91,7 @@ export default function ContributorInfo({contribution}:Props) {
                     peer-hover/d:pt-0.5
                     peer-hover/d:pl-[calc(var(--spacing)*5+var(--spacing)*3)]
                 '>
-                    {contribution.contributor.name}
+                    {contribution.name}
                 </div>
             </div>
         </Link>
