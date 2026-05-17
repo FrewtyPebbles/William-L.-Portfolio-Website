@@ -16,6 +16,10 @@ class Settings(BaseSettings):
 
     S3_BUCKET_NAME: str = ""
     S3_REGION: str = "us-west-1"
+    
+    GOOGLE_CLIENT_ID: str
+    GOOGLE_CLIENT_SECRET: str
+    COMMENTS_SECRET: str
 
 
 settings = Settings()

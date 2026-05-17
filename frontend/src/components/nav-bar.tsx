@@ -10,13 +10,13 @@ import {
   NavigationMenuLink,
 } from '@/components/ui/navigation-menu'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useProjects } from '@/lib/project-context'
+import { useNav } from '@/lib/nav-context'
 import { useIsMobile } from '@/lib/use-mobile'
 import { get_asset_url } from '@/lib/utils'
 import FetchingNavItemSkeleton from './fetching-nav-item-skeleton'
 
 export function NavBar({ className }: { className: string }) {
-  const { projects, resumes, loading } = useProjects()
+  const { projects, resumes, loading } = useNav()
   const isMobile = useIsMobile()
   var projects_section = <FetchingNavItemSkeleton/>
   var resumes_section = <FetchingNavItemSkeleton/>
@@ -34,11 +34,11 @@ export function NavBar({ className }: { className: string }) {
                 ))}
               </ul>
     resumes_section = <ul className="max-h-[300px] overflow-y-auto grid gap-2 sm:w-[400px] md:w-[400px] md:grid-cols-1 lg:w-[400px]">
-                {resumes.map((resume, itemKey) => (
+                {Object.entries(resumes).map(([_, resume], itemKey) => (
                   <ListItem
                     key={itemKey}
                     title={resume.title}
-                    to={get_asset_url(resume.src)}
+                    to={resume.path}
                     new_tab={true}
                   >
                     {resume.nav_description}

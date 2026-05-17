@@ -13,21 +13,24 @@ import NewResume from '@/pages/NewResume'
 import EditResume from '@/pages/EditResume'
 import NewPublicFile from '@/pages/NewPublicFile'
 import EditPublicFile from '@/pages/EditPublicFile'
-import { ProjectProvider } from '@/lib/project-context'
+import { NavProvider } from '@/lib/nav-context'
+import { CommentsProvider } from '@/lib/comments-context'
 
 function MainLayout() {
   return (
     <>
-      <ProjectProvider>
-        <div className="flex flex-col min-h-screen">
-          <div className="h-10" />
-          <NavBar className="" />
-          <main className="flex-1 w-full">
-            <Outlet />
-          </main>
-        </div>
-        <TailwindDarkmodeFix />
-      </ProjectProvider>
+      <CommentsProvider>
+        <NavProvider>
+          <div className="flex flex-col min-h-screen">
+            <div className="h-10" />
+            <NavBar className="" />
+            <main className="flex-1 w-full">
+              <Outlet />
+            </main>
+          </div>
+          <TailwindDarkmodeFix />
+        </NavProvider>
+      </CommentsProvider>
     </>
   )
 }

@@ -11,11 +11,14 @@ import FetchingProjectPageSkeleton from '@/components/fetching-project-page-skel
 import { get_project_url } from '@/lib/utils';
 import { ProjectConfig } from '@/types/project';
 import ImageCarousel from '@/components/image-carousell';
+import { useComments } from '@/lib/comments-context';
+import Comment from '@/components/comment';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [project, setProject] = useState<ProjectConfig | null>(null);
   const [projectAbout, setProjectAbout] = useState<string | null>(null);
+  const [comments, loading_comments] = useComments()
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -67,6 +70,11 @@ export default function ProjectDetail() {
         <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
           {projectAbout}
         </ReactMarkdown>
+      </div>
+      <a href="/api/login">login with google to comment</a>
+      <div>
+        {/* Comments */}
+        {comments.map((comment, n) => <Comment comment={comment}/>)}
       </div>
     </div>
   );

@@ -1,36 +1,30 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
-import { get_project_url } from './utils'
+import { get_project_url, get_resume_url } from './utils'
 import { ProjectConfig } from '@/types/project'
+import { ResumeConfig } from '@/types/resume'
 
-interface Resume {
-  id: number
-  title: string
-  src: string
-  nav_description: string
-  created_at: string
-}
 
-interface ProjectContextValue {
+interface NavContextValue {
   projects: {[key:string]: ProjectConfig}
-  resumes: Resume[]
+  resumes: {[key:string]: ResumeConfig}
   loading: boolean
 }
 
-const ProjectContext = createContext<ProjectContextValue>({
+const NavContext = createContext<NavContextValue>({
   projects: {},
-  resumes: [],
+  resumes: {},
   loading: true,
 })
 
-export function ProjectProvider({ children }: { children: ReactNode }) {
+export function NavProvider({ children }: { children: ReactNode }) {
   const [projects, setProjects] = useState<{[key:string]: ProjectConfig}>({})
-  const [resumes, setResumes] = useState<Resume[]>([])
+  const [resumes, setResumes] = useState<{[key:string]: ResumeConfig}>({})
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     Promise.all([
       fetch(get_project_url("projects.json")).then(r => r.ok ? r.json() : {}),
-      fetch('/api/resumes').then(r => r.ok ? r.json() : []),
+      fetch(get_resume_url("resumes.json")).then(r => r.ok ? r.json() : []),
     ]).then(([p, r]) => {
       setProjects(p)
       setResumes(r)
@@ -39,12 +33,12 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
   }, [])
 
   return (
-    <ProjectContext.Provider value={{ projects, resumes, loading }}>
+    <NavContext.Provider value={{ projects, resumes, loading }}>
       {children}
-    </ProjectContext.Provider>
+    </NavContext.Provider>
   )
 }
 
-export function useProjects() {
-  return useContext(ProjectContext)
+export function useNav() {
+  return useContext(NavContext)
 }
