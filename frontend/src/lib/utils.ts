@@ -19,7 +19,7 @@ export function get_project_url(file_name: string): string {
 }
 
 export function get_resume_url(file_name: string): string {
-  return `/static/projects/${file_name}`
+  return `/static/resumes/${file_name}`
 }
 
 const API_BASE = import.meta.env.VITE_API_BASE || ''

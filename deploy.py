@@ -15,7 +15,7 @@ print("\n=== Generating SSG Projects Config ===")
 generate_projects()
 
 print("\n=== Generating SSG Resumes Config ===")
-generate_projects()
+generate_resumes()
 
 # 1. Build frontend
 print("\n=== Building Frontend ===")
