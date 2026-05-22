@@ -6,3 +6,7 @@ boto3==1.35.0
 pydantic==2.10.0
 pydantic-settings==2.7.0
 sqlalchemy-aurora-data-api==0.2.7
+google-auth-oauthlib==1.4.0
+google-auth==2.53.0
+pyjwt==2.12.1
+itsdangerous==2.2.0

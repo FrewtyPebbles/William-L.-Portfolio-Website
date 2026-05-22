@@ -45,3 +45,4 @@ yarn-error.log*
 uv.lock
 /public/static/projects/projects.json
 /public/static/resumes/resumes.json
+*.secret*

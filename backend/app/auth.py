@@ -1,9 +1,14 @@
-import boto3
-from fastapi import HTTPException, Request
+import os
 
+import boto3
+from fastapi import Depends, HTTPException, Request, status
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
 from app import models
-from app.database import SessionLocal
+from app.database import SessionLocal, get_db
 from app.settings import settings
+from google.auth.transport import requests
+from google.oauth2 import id_token
 
 _IS_DEV = not settings.COGNITO_USER_POOL_ID or not settings.COGNITO_CLIENT_ID
 
@@ -45,31 +50,42 @@ def admin_login(username: str, password: str) -> dict:
     return response["AuthenticationResult"]
 
 # Comments system
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' if settings.ENVIRONMENT == "dev" else '0'
 
-from authlib.integrations.starlette_client import OAuth
+GOOGLE_SCOPES = [
+    "https://googleapis.com/auth/userinfo.email", 
+    "https://googleapis.com/auth/userinfo.profile", 
+]
 
-COMMENT_OAUTH = OAuth()
+SECURITY_SCHEME = HTTPBearer()
 
-COMMENT_OAUTH.register(
-    name="google",
-    client_id=settings.GOOGLE_CLIENT_ID,
-    client_secret=settings.GOOGLE_CLIENT_SECRET,
-    server_metadata_url=(
-        "https://accounts.google.com/.well-known/openid-configuration"
-    ),
-    client_kwargs={
-        "scope": "openid email profile"
-    }
-)
+def get_current_user(
+        request: Request,
+        db: Session = Depends(get_db)
+    ) -> models.User:
+    """
+    Gets user from user_id.
+    """
 
-def get_current_commenter(request: Request) -> models.User:
     user_id = request.session.get("user_id")
 
     if not user_id:
-        raise HTTPException(status_code=401)
+        print("FAIL")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated"
+        )
 
-    db = SessionLocal()
+    user = db.query(models.User).filter(
+        models.User.id == user_id
+    ).first()
 
-    user = db.query(models.User).get(user_id)
+    if not user:
+        request.session.clear()
+
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid session"
+        )
 
     return user

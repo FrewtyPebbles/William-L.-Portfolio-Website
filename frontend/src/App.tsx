@@ -7,11 +7,12 @@ import ProjectDetail from '@/pages/ProjectDetail'
 import AdminLogin from '@/pages/AdminLogin'
 import { NavProvider } from '@/lib/nav-context'
 import { CommentsProvider } from '@/lib/comments-context'
+import { UserProvider } from '@/lib/user-context'
 
 function MainLayout() {
   return (
     <>
-      <CommentsProvider>
+      <UserProvider>
         <NavProvider>
           <div className="flex flex-col min-h-screen">
             <div className="h-10" />
@@ -22,7 +23,7 @@ function MainLayout() {
           </div>
           <TailwindDarkmodeFix />
         </NavProvider>
-      </CommentsProvider>
+      </UserProvider>
     </>
   )
 }
@@ -33,7 +34,7 @@ export default function App() {
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
-        <Route path="/projects/:slug" element={<ProjectDetail />} />
+        <Route path="/projects/:slug" element={<CommentsProvider><ProjectDetail /></CommentsProvider>} />
         <Route path="/admin/login" element={<AdminLogin />} />
       </Route>
     </Routes>

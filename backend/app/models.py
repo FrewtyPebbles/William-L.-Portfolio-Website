@@ -28,7 +28,7 @@ class Comment(Base):
 
     content:Mapped[str] = mapped_column(String(1000), nullable=False)
 
-    created_at:Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    created_at:Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.now)
 
     user_id:Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
     project_slug:Mapped[str] = mapped_column(String(50), nullable=False)

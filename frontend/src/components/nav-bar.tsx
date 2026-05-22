@@ -52,17 +52,17 @@ export function NavBar({ className }: { className: string }) {
       <NavigationMenu className="dark:bg-black">
         <NavigationMenuList className="flex-wrap bg-inherit">
           <NavigationMenuItem className="bg-inherit">
-            <NavigationMenuLink {...({ asChild: true } as any)} className="bg-inherit">
-              <Link to="/">Home</Link>
+            <NavigationMenuLink href="/" className="bg-inherit">
+              Home
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem className="bg-inherit">
-            <NavigationMenuLink {...({ asChild: true } as any)} className="bg-inherit">
-              <Link to="/about">About</Link>
+            <NavigationMenuLink href="/about" className="bg-inherit">
+              About
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Projects</NavigationMenuTrigger>
+            <NavigationMenuTrigger className={"cursor-pointer"}>Projects</NavigationMenuTrigger>
             <NavigationMenuContent className="right-auto left-0">
               {projects_section}
             </NavigationMenuContent>
@@ -88,28 +88,13 @@ function ListItem({
 }: React.ComponentPropsWithoutRef<'li'> & { to: string, new_tab?:boolean }) {
   return (
     <li {...props}>
-      <NavigationMenuLink {...({ asChild: true } as any)}>
-        {(() => {
-          if (new_tab) {
-            return <a
-              href={to}
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <div className="text-sm leading-none font-medium">{title}</div>
-              <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-                {children}
-              </p>
-            </a>
-          } else {
-            return <Link to={to}>
-              <div className="text-sm leading-none font-medium">{title}</div>
-              <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-                {children}
-              </p>
-            </Link>
-          }
-        })()}
+      <NavigationMenuLink href={to} {...({ asChild: true } as any)} target={new_tab ? "_blank" : undefined} rel={new_tab ? "noopener noreferrer" : undefined} {...({ asChild: true } as any)}>
+        <span>
+          <div className="text-sm leading-none font-medium">{title}</div>
+          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+            {children}
+          </p>
+        </span>
       </NavigationMenuLink>
     </li>
   )

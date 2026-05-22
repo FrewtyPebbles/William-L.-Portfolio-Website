@@ -1,3 +1,4 @@
+import { UserData } from "@/types/users";
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -26,4 +27,37 @@ const API_BASE = import.meta.env.VITE_API_BASE || ''
 
 export function apiUrl(path: string): string {
   return `${API_BASE}${path}`
+}
+
+export async function postComment(content:string, user:UserData|null, set_finished_msg:(msg:string)=>void, parent_id?:number, slug?:string) {
+  if (user === null)
+    return {
+      status:"ERROR",
+      message:"You cannot post a comment unless you are logged in."
+    }
+  if (slug === undefined)
+    return {
+      status:"ERROR",
+      message:"You are trying to post a comment on an unknown page."
+    }
+  
+  await fetch(`/api/project/${slug}/comments`,
+    {
+      method:"POST",
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body:JSON.stringify({
+        parent_id:parent_id,
+        content:content
+      })
+    }
+  )
+  .then(r => {
+    if (r.ok)
+      set_finished_msg("Comment posted.")
+  })
+  .catch(() => {
+    set_finished_msg("Failed to post comment.")
+  })
 }

@@ -13,7 +13,10 @@ app.include_router(public.router, prefix="")
 app.include_router(admin.router, prefix="/admin")
 app.add_middleware(
     SessionMiddleware,
-    secret_key=settings.COMMENTS_SECRET
+    secret_key=settings.SESSION_SECRET,
+    https_only=settings.ENVIRONMENT == "prod",
+    same_site="lax",
+    max_age=86400
 )
 
 handler = Mangum(app, lifespan="off")

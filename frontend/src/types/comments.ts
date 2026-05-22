@@ -1,12 +1,10 @@
-
-export interface User {
-    name: string
-    avatar_url: string
-}
+import { UserData } from '@/types/users'
 
 export interface CommentData {
+    id: number
     content: string
     created_at: string
-    user: User
+    author: string
+    avatar: string
     replies: CommentData[]
 }
