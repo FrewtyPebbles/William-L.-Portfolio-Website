@@ -64,10 +64,6 @@ locals {
 # Static content bucket
 resource "aws_s3_bucket" "static-content-bucket" {
   bucket = "portfolio-site-static-content-bucket"
-
-  tags = {
-    Application = "NodeApp"
-  }
 }
 
 resource "aws_s3_bucket_public_access_block" "static_content" {
@@ -139,4 +135,20 @@ resource "aws_s3_object" "env" {
   content_type = "text/plain"
 
   etag = filemd5("${local.root_dir}/.env")
+}
+
+# This bucket stores my lambda function
+# we use a separate bucket for deployment efficiency, security,
+# and deployment vs prod environment separation.
+resource "aws_s3_bucket" "lambda_bucket" {
+  bucket = "portfolio-site-lambda-bucket"
+}
+
+resource "aws_s3_bucket_public_access_block" "lambda_bucket" {
+  bucket = aws_s3_bucket.lambda_bucket.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }

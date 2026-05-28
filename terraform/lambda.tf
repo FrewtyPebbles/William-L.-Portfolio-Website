@@ -1,5 +1,5 @@
 resource "aws_s3_object" "lambda_code" {
-  bucket = aws_s3_bucket.static-content-bucket.id
+  bucket = aws_s3_bucket.lambda_bucket.id
   key    = "lambda/lambda.zip"
   source = "${path.module}/../backend/lambda.zip"
   etag   = filemd5("${path.module}/../backend/lambda.zip")
@@ -12,10 +12,10 @@ resource "aws_lambda_function" "api" {
   timeout       = 60
   memory_size   = 256
 
-  s3_bucket = aws_s3_bucket.static-content-bucket.id
+  s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_code.key
 
-  source_code_hash = filebase64sha256("${path.module}/../backend/lambda.zip")
+  source_code_hash = aws_s3_object.lambda_code.checksum_sha256
 
   role    = aws_iam_role.lambda_role.arn
   publish = true
@@ -30,6 +30,7 @@ resource "aws_lambda_function" "api" {
       S3_REGION         = var.region
       COGNITO_USER_POOL_ID = aws_cognito_user_pool.admin_pool.id
       COGNITO_CLIENT_ID    = aws_cognito_user_pool_client.admin_client.id
+      GOOGLE_CLOUD_SECRET_ARN = aws_secretsmanager_secret.google_cloud_credentials.arn
     }
   }
 
@@ -80,9 +81,11 @@ resource "aws_apigatewayv2_stage" "default" {
 
 resource "aws_apigatewayv2_integration" "lambda" {
   api_id               = aws_apigatewayv2_api.main.id
+  description = "FastAPI Mangum Integration"
   integration_type     = "AWS_PROXY"
   integration_method   = "POST"
   integration_uri = aws_lambda_function.api.invoke_arn
+  payload_format_version = "2.0"
 }
 
 # JWT Authorizer for Admin routes
@@ -98,39 +101,12 @@ resource "aws_apigatewayv2_authorizer" "cognito_jwt" {
   }
 }
 
-# Public routes (no auth)
-resource "aws_apigatewayv2_route" "public_projects" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "GET /api/projects"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+resource "aws_apigatewayv2_route" "public_catch_all" {
+  api_id = aws_apigatewayv2_api.main.id
+  route_key = "$default"
+  target = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
-resource "aws_apigatewayv2_route" "public_project_slug" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "GET /api/projects/{slug}"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-resource "aws_apigatewayv2_route" "public_resumes" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "GET /api/resumes"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-# Admin login route (no auth — Lambda handles Cognito internally)
-resource "aws_apigatewayv2_route" "admin_login" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /api/admin/login"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-resource "aws_apigatewayv2_route" "admin_logout" {
-  api_id    = aws_apigatewayv2_api.main.id
-  route_key = "POST /api/admin/logout"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-}
-
-# Admin protected routes (JWT auth via Cognito)
 resource "aws_apigatewayv2_route" "admin_proxy" {
   api_id             = aws_apigatewayv2_api.main.id
   route_key          = "ANY /api/admin/{proxy+}"

@@ -46,3 +46,4 @@ uv.lock
 /public/static/projects/projects.json
 /public/static/resumes/resumes.json
 *.secret*
+/secrets
