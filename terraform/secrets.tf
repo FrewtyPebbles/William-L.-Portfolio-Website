@@ -27,5 +27,5 @@ resource "aws_secretsmanager_secret" "google_cloud_credentials" {
 
 resource "aws_secretsmanager_secret_version" "google_cloud_credentials" {
   secret_id = aws_secretsmanager_secret.google_cloud_credentials.id
-  secret_string = file(data.dotenv.config.env["GOOGLE_CLIENT_SECRETS_PATH"])# LOAD/READ GOOGLE SECRETS FILE
+  secret_string = file("${path.module}/../${data.dotenv.config.env["GOOGLE_CLIENT_SECRETS_PATH"]}")# LOAD/READ GOOGLE SECRETS FILE
 }

@@ -126,17 +126,6 @@ resource "aws_s3_object" "frontend_files" {
   etag = filemd5("${local.frontend_dir}/${each.value}")
 }
 
-# Upload environment file to global bucket
-resource "aws_s3_object" "env" {
-  bucket = "global-files-wal-aws"
-  key    = "portfolio/.env"
-  source = "${local.root_dir}/.env"
-
-  content_type = "text/plain"
-
-  etag = filemd5("${local.root_dir}/.env")
-}
-
 # This bucket stores my lambda function
 # we use a separate bucket for deployment efficiency, security,
 # and deployment vs prod environment separation.
