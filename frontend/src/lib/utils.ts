@@ -41,23 +41,35 @@ export async function postComment(content:string, user:UserData|null, set_finish
       message:"You are trying to post a comment on an unknown page."
     }
   
-  await fetch(`/api/project/${slug}/comments`,
-    {
-      method:"POST",
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body:JSON.stringify({
-        parent_id:parent_id,
-        content:content
-      })
-    }
-  )
-  .then(r => {
-    if (r.ok)
+  try {
+    let response = await fetch(`/api/project/${slug}/comments`,
+      {
+        method:"POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify({
+          parent_id:parent_id,
+          content:content
+        })
+      }
+    )
+    if (response.ok) {
       set_finished_msg("Comment posted.")
-  })
-  .catch(() => {
+      setTimeout(() => {
+        set_finished_msg("")
+      }, 1000)
+      return true;
+    }
+    else {
+      return false;
+    }
+  } catch (error) {
+    console.error(error)
     set_finished_msg("Failed to post comment.")
-  })
+    setTimeout(() => {
+      set_finished_msg("")
+    }, 1000)
+    return false;
+  }
 }

@@ -24,7 +24,7 @@ export function NavProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     Promise.all([
       fetch(get_project_url("projects.json")).then(r => r.ok ? r.json() : {}),
-      fetch(get_resume_url("resumes.json")).then(r => r.ok ? r.json() : []),
+      fetch(get_resume_url("resumes.json")).then(r => r.ok ? r.json() : {}),
     ]).then(([p, r]) => {
       setProjects(p)
       setResumes(r)

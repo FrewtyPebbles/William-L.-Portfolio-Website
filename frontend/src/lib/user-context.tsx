@@ -11,10 +11,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch(`/api/me`)
-      .then(u => u.ok ? u.json() : [])
+      .then(u => u.ok ? u.json() : null)
       .then((u) => {
-      setUser(u)
-      setLoading(false)
+        setUser(u)
+        setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
 

@@ -16,20 +16,13 @@ import Comment from '@/components/comment';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/user-context';
 import { UserData } from '@/types/users';
+import { CommentData } from '@/types/comments';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [project, setProject] = useState<ProjectConfig | null>(null);
   const [projectAbout, setProjectAbout] = useState<string | null>(null);
-  const [comments, loading_comments] = useComments()
-  const [user, loading_user] = useUser()
   const [loading, setLoading] = useState(true);
-  const [comment_post_status, set_comment_post_status] = useState<string>("");
-  const [comment_content, set_comment_content] = useState<string>("")
-
-  const handleTextareaChange = (event:React.ChangeEvent<HTMLTextAreaElement>) => {
-    set_comment_content(event.target.value); // Update state as the user types
-  };
 
   useEffect(() => {
     if (!slug) return;
@@ -82,8 +75,38 @@ export default function ProjectDetail() {
         </ReactMarkdown>
       </div>
       {/* This is the comments section, it is still in development. */}
-      {!loading_user && user ?
-      <div className='m-4 rounded-2xl bg-gray-900'>
+      <CommentsSection project={project} slug={slug}/>
+    </div>
+  );
+}
+
+interface CommentsSectionProps {
+  project:ProjectConfig;
+  slug?:string
+}
+
+function CommentsSection({project, slug}:CommentsSectionProps) {
+  const [user, loading_user] = useUser()
+  const [comment_post_status, set_comment_post_status] = useState<string>("");
+  const [comment_content, set_comment_content] = useState<string>("")
+  const [comments, loading_comments, fetch_comments] = useComments()
+  const handleTextareaChange = (event:React.ChangeEvent<HTMLTextAreaElement>) => {
+    set_comment_content(event.target.value); // Update state as the user types
+  };
+
+  useEffect(() => {
+    fetch_comments(null)
+  }, [])
+
+  let post_comment_section = (
+    <a href={`/api/login?return_uri=${encodeURIComponent(window.location.pathname)}`}>
+      login with google to comment
+    </a>
+  );
+  if (!loading_user && user) {
+    
+    post_comment_section = (
+      <div className='m-4'>
         <div className='flex'>
             <div>
                 <div className='flex justify-center pt-2'>
@@ -94,25 +117,64 @@ export default function ProjectDetail() {
                 </div>
             </div>
             <div className='grow flex'>
-                <textarea placeholder={`Comment on ${project.title}...`} className='h-full resize-none w-full dark:bg-gray-800 bg-gray-200 p-2' onChange={handleTextareaChange} value={comment_content} name="" id=""></textarea>
+                <textarea placeholder={`Comment on ${project.title}...`} className='
+                  h-full 
+                  resize-none 
+                  w-full 
+                  focus:outline-none
+                  focus:dark:bg-[linear-gradient(to_left,var(--color-gray-800),var(--color-gray-950))]
+                  dark:bg-[linear-gradient(to_left,var(--color-gray-800),black)]
+                  focus:bg-[linear-gradient(to_left,var(--color-gray-400),var(--color-gray-50))]
+                  bg-[linear-gradient(to_left,var(--color-gray-400),white)]
+                  p-2
+                ' onChange={handleTextareaChange} value={comment_content} name="" id=""></textarea>
+
                 <div className='flex justify-end'>
-                    <button className='bg-gray-500 pl-2 pr-2 rounded-r-2xl dark:hover:bg-gray-400 hover:bg-gray-600 cursor-pointer border-2 dark:hover:border-white hover:border-black border-transparent flex flex-col justify-center transition-all'
+                    <button className='
+                      rounded-r-full
+                      relative overflow-hidden bg-gray-500 pl-5 pr-2 cursor-pointer
+                      flex flex-col justify-center 
+                      dark:bg-[linear-gradient(to_left,var(--color-gray-950),var(--color-gray-800))]
+                      bg-[linear-gradient(to_left,var(--color-gray-50),var(--color-gray-400))]
+
+                      /* gradient pseudoelement */
+                      dark:before:bg-[linear-gradient(to_left,rgba(255,255,255,0.4),transparent)]
+                      before:bg-[linear-gradient(to_left,rgba(0,0,0,0.4),transparent)]
+                      before:absolute before:inset-0 
+
+                      /* create a transition */
+                      before:opacity-0 before:transition-opacity before:duration-300
+                      hover:before:opacity-100
+                    '
                         onClick={async e => {
-                            postComment(comment_content, user, set_comment_post_status, undefined, slug)
-                            window.location.reload()
+                            let success = await postComment(comment_content, user, set_comment_post_status, undefined, slug)
+                            if (success) {
+                              set_comment_content("")
+                              fetch_comments(null)
+                            }
                         }}>post</button>
                 </div>
             </div>
         </div>
         {comment_post_status}
-        </div>
-        :
-        <a href={`/api/login?return_uri=${encodeURIComponent(window.location.pathname)}`}>login with google to comment</a>
-      }
-      
-      <div className='flex flex-col'>
+      </div>
+    );
+  }
+
+  let comments_section = <div>Loading comments section...</div>
+
+  if (!loading_comments && comments !== null) {
+    comments_section = (
+      <div className='flex flex-col pl-2 pr-4'>
         {comments.map((comment, n) => <Comment key={n} comment={comment}/>)}
       </div>
-    </div>
-  );
+    )
+  }
+
+  return (<div>
+    {post_comment_section}
+    
+    {comments_section}
+  </div>
+  )
 }

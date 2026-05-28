@@ -1,4 +1,4 @@
-from typing import Optional
+import platform
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
@@ -6,22 +6,31 @@ from app.auth import GOOGLE_SCOPES, get_current_user
 from app.database import SessionLocal
 from app import models
 from app.settings import settings
-import jwt
 import requests
 from google_auth_oauthlib.flow import Flow
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
+CURRENT_OS = platform.system()
 
 router = APIRouter()
 
-class CreateCommentBody(BaseModel):
+class CreateCommentSchema(BaseModel):
     parent_id:int | None = None
     content:str
+
+    @field_validator('content')
+    @classmethod
+    def validate_content(cls, content: str) -> str:
+        content = content.strip()
+        if content == "":
+            raise ValueError("Comment cannot be empty.")
+        return content
 
 @router.post("/project/{project_slug}/comments")
 async def create_comment(
     request: Request,
     project_slug: str,
-    new_comment: CreateCommentBody,
+    new_comment: CreateCommentSchema,
     user:models.User = Depends(get_current_user)
 ):
     try:
@@ -62,26 +71,32 @@ def recurse_comments(comments: list[models.Comment]):
     ret_comments = []
     for c in comments:
         comment_replies = c.replies
+        date = ""
+        if CURRENT_OS == "Windows":
+            created_at = c.created_at.strftime("%#m/%#d/%Y at %#I:%M:%S %p")
+        else:
+            created_at = c.created_at.strftime("%-m/%-d/%Y at %-I:%M:%S %p")
         ret_comments.append({
             "id": c.id,
             "content": c.content,
             "author": c.user.name,
             "avatar": c.user.avatar_url,
-            "created_at": c.created_at.isoformat(),
+            "created_at": created_at,
             "replies":recurse_comments(comment_replies) if len(comment_replies) else [],
         })
     
     return ret_comments
 
+
 @router.get("/project/{project_slug}/comments")
-def get_comments(project_slug: str):
+def get_comments(project_slug: str, parent_id: int = None):
     with SessionLocal() as db:
 
         comments = (
             db.query(models.Comment)
             .filter(
                 models.Comment.project_slug == project_slug,
-                models.Comment.parent_id.is_(None)
+                models.Comment.parent_id.is_(parent_id)
             )
             .all()
         )
