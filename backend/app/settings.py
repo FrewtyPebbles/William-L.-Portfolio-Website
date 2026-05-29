@@ -26,7 +26,7 @@ class Settings(BaseSettings):
     SESSION_SECRET: str = "dev"
     GOOGLE_ALGORITHM: str = "HS256"
 
-    GOOGLE_CLOUD_SECRET_ARN:str = None
+    GOOGLE_CLOUD_SECRET_ARN:str | None = None
 
     __GOOGLE_CLIENT_SECRETS: dict[str, Any] | None = None
 
@@ -47,6 +47,8 @@ class Settings(BaseSettings):
 
                         if "SecretString" in response:
                             self.__GOOGLE_CLIENT_SECRETS = json.loads(response["SecretString"])
+                            if isinstance(self.__GOOGLE_CLIENT_SECRETS, str):
+                                self.__GOOGLE_CLIENT_SECRETS = json.loads(self.__GOOGLE_CLIENT_SECRETS)
                         else:
                             raise RuntimeError("Secret binary format is not supported by this application")
                     except ClientError as e:

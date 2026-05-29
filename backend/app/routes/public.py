@@ -102,15 +102,18 @@ async def login_google_sso(request: Request, return_uri:str = "/"):
         flow = Flow.from_client_config(
             settings.GOOGLE_CLIENT_SECRETS,
             scopes=GOOGLE_SCOPES,
+            autogenerate_code_verifier=False
         )
 
-        flow.redirect_uri = request.url_for("auth_callback_google_sso")
+        flow.redirect_uri = settings.GOOGLE_CLIENT_REDIRECT_URI
 
         # generate the authorization URL and state token
+        # We must disable PKCE (stateful code verifiers) since we run in a stateless lambda
         authorization_url, state = flow.authorization_url(
             access_type='offline', 
             include_granted_scopes='true',
-            prompt='select_account'
+            prompt='select_account',
+            include_code_challenge=False
         )
 
         
@@ -193,12 +196,20 @@ async def auth_callback_google_sso(request: Request):
     flow = Flow.from_client_config(
         settings.GOOGLE_CLIENT_SECRETS,
         scopes=GOOGLE_SCOPES,
+        autogenerate_code_verifier=False
     )
 
-    flow.redirect_uri = request.url_for("auth_callback_google_sso")
+    if settings.ENVIRONMENT == "prod":
+        flow.redirect_uri = settings.GOOGLE_CLIENT_REDIRECT_URI
+    else:
+        flow.redirect_uri = str(request.url_for("auth_callback_google_sso"))
     
     try:
-        authorization_response = str(request.url)
+        if settings.ENVIRONMENT == "prod":
+            authorization_response = f"{settings.GOOGLE_CLIENT_REDIRECT_URI}?{request.url.query}"
+        else:
+            authorization_response = str(request.url)
+        
         flow.fetch_token(authorization_response=authorization_response)
 
         credentials = flow.credentials
@@ -252,6 +263,7 @@ async def auth_callback_google_sso(request: Request):
         response.delete_cookie("return_uri")
         return response
     except Exception as e:
+        print(f"Auth error: {str(e)}")
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
 
 @router.get("/logout")

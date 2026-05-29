@@ -51,10 +51,12 @@ def admin_login(username: str, password: str) -> dict:
 
 # Comments system
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' if settings.ENVIRONMENT == "dev" else '0'
+os.environ['OAUTHLIB_RELAX_TOKEN_SCOPE'] = '1'
 
 GOOGLE_SCOPES = [
-    "https://googleapis.com/auth/userinfo.email", 
-    "https://googleapis.com/auth/userinfo.profile", 
+    "openid",
+    "email", 
+    "profile", 
 ]
 
 SECURITY_SCHEME = HTTPBearer()
