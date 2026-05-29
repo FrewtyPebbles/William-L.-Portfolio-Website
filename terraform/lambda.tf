@@ -88,19 +88,6 @@ resource "aws_apigatewayv2_integration" "lambda" {
   payload_format_version = "2.0"
 }
 
-# JWT Authorizer for Admin routes
-resource "aws_apigatewayv2_authorizer" "cognito_jwt" {
-  name             = "cognito-jwt-authorizer"
-  api_id           = aws_apigatewayv2_api.main.id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Cookie.admin_access_token"]
-
-  jwt_configuration {
-    audience = [aws_cognito_user_pool_client.admin_client.id]
-    issuer   = "https://cognito-idp.${var.region}.amazonaws.com/${aws_cognito_user_pool.admin_pool.id}"
-  }
-}
-
 resource "aws_apigatewayv2_route" "public_catch_all" {
   api_id    = aws_apigatewayv2_api.main.id
   route_key = "$default"
@@ -108,17 +95,13 @@ resource "aws_apigatewayv2_route" "public_catch_all" {
 }
 
 resource "aws_apigatewayv2_route" "delete_comment" {
-  api_id             = aws_apigatewayv2_api.main.id
-  route_key          = "DELETE /api/project/{project_slug}/comments"
-  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-  authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt.id
-  authorization_type = "JWT"
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "DELETE /api/project/{project_slug}/comments"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
 resource "aws_apigatewayv2_route" "check_admin" {
-  api_id             = aws_apigatewayv2_api.main.id
-  route_key          = "GET /api/admin/check"
-  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
-  authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt.id
-  authorization_type = "JWT"
+  api_id    = aws_apigatewayv2_api.main.id
+  route_key = "GET /api/admin/check"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }

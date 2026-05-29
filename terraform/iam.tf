@@ -46,7 +46,8 @@ resource "aws_iam_policy" "lambda_policy" {
         Effect = "Allow"
         Action = [
           "cognito-idp:AdminInitiateAuth",
-          "cognito-idp:AdminRespondToAuthChallenge"
+          "cognito-idp:AdminRespondToAuthChallenge",
+          "cognito-idp:GetUser"
         ]
         Resource = [aws_cognito_user_pool.admin_pool.arn]
       },

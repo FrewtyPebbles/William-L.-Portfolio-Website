@@ -2,7 +2,6 @@ import platform
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
-from sqlalchemy import delete
 from sqlalchemy.orm import Session
 from app.auth import GOOGLE_SCOPES, get_admin, get_current_user
 from app.database import SessionLocal, get_db
@@ -93,7 +92,7 @@ def get_comments(project_slug: str, parent_id: int = None, db: Session = Depends
         db.query(models.Comment)
         .filter(
             models.Comment.project_slug == project_slug,
-            models.Comment.parent_id.is_(parent_id)
+            models.Comment.parent_id == parent_id if parent_id is not None else models.Comment.parent_id.is_(None)
         )
         .all()
     )
@@ -101,22 +100,22 @@ def get_comments(project_slug: str, parent_id: int = None, db: Session = Depends
     return recurse_comments(comments)
 
 @router.delete("/project/{project_slug}/comments")
-def get_comments(project_slug: str, comment_id:int, db: Session = Depends(get_db)):
+def delete_comment(project_slug: str, comment_id: int, admin_user: dict = Depends(get_admin), db: Session = Depends(get_db)):
+    comment = db.query(models.Comment).filter(
+        models.Comment.project_slug == project_slug,
+        models.Comment.id == comment_id
+    ).first()
+
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comment not found")
+
     try:
-        del_statement = (
-            delete(models.Comment)
-            .where(
-                models.Comment.project_slug == project_slug,
-                models.Comment.id.is_(comment_id)
-            )
-        )
-
-        db.execute(del_statement)
+        db.delete(comment)
         db.commit()
-
-        return {"error":False, "message":f"Deleted comment with id {comment_id}."}
+        return {"error": False, "message": f"Deleted comment with id {comment_id}."}
     except Exception as e:
-        return {"error":True, "message":f"Deleted comment with id {comment_id}. ({e})"}
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"Failed to delete comment: {e}")
 
 @router.get("/login")
 async def login_google_sso(request: Request, return_uri:str = "/"):

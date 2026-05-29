@@ -17,6 +17,7 @@ export async function login(username: string, password: string) {
   const res = await fetch('/api/admin/login', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
     body: JSON.stringify({ username, password }),
   })
   if (!res.ok) {

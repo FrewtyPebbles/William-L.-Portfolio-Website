@@ -8,9 +8,10 @@ interface Props {
     comment:CommentData
     is_admin:boolean
     parent_fetch:(parent_id:number|null) => Promise<void>
+    parent_id:number|null
 }
 
-export default function Comment({ comment, is_admin, parent_fetch }:Props) {
+export default function Comment({ comment, is_admin, parent_fetch, parent_id = null }:Props) {
     const { slug } = useParams<{ slug: string }>();
     const [user, loading_user] = useUser()
     const [comment_post_status, set_comment_post_status] = useState<string>("");
@@ -41,13 +42,13 @@ export default function Comment({ comment, is_admin, parent_fetch }:Props) {
     let admin_control = <></>
 
     const delete_comment = async () => {
-        let response = await fetch(`/api/project/${slug}/comments?comment_id=${comment.id}`,
-            {
-                method:"DELETE",
-            }
-        )
+        let response = await fetch(`/api/project/${slug}/comments?comment_id=${comment.id}`, {
+            method: "DELETE",
+            credentials: 'same-origin', // Required for HttpOnly cookie transmission
+        });
+
         if (response.ok) {
-            await parent_fetch(null)
+            await parent_fetch(parent_id);
         }
     }
 
@@ -63,17 +64,23 @@ export default function Comment({ comment, is_admin, parent_fetch }:Props) {
         set_comment_content(event.target.value); // Update state as the user types
     };
 
+    useEffect(() => {
+        if (comment.replies) {
+            setComments(comment.replies);
+        }
+    }, [comment.replies]);
+
+    // Base your toggles strictly on the local 'replies' hook variable
     let show_hide_replies_button = (
         replies.length ? 
-            <button onClick={e => set_show_replies(!show_replies)} className='dark:hover:bg-gray-800 cursor-pointer  text-current/70'>
+            <button onClick={e => set_show_replies(!show_replies)} className='dark:hover:bg-gray-800 cursor-pointer text-current/70'>
                 {show_replies ? "- Hide Replies" : "↯ Show Replies"}
             </button>
             :
             <></>
-    )
-    
+    );
 
-    let comment_replies_interface_separator = replies.length ? <span> | </span> : <></>
+    let comment_replies_interface_separator = replies.length ? <span> | </span> : <></>;
 
     let comment_replies_interface = (<div>
             {show_hide_replies_button}
@@ -176,7 +183,15 @@ export default function Comment({ comment, is_admin, parent_fetch }:Props) {
                         {
                             show_replies ?
                             <div>
-                                {(replies.length ? replies : comment.replies).map((comment, n) => <Comment key={n} comment={comment} is_admin={is_admin} parent_fetch={fetch_comments} />)}
+                                {replies.map((reply) => (
+                                    <Comment 
+                                        key={reply.id} // FIXED: Use reply.id instead of index 'n'
+                                        comment={reply} 
+                                        is_admin={is_admin} 
+                                        parent_fetch={fetch_comments} 
+                                        parent_id={comment.id}
+                                    />
+                                ))}
                             </div>
                             :
                             <></>

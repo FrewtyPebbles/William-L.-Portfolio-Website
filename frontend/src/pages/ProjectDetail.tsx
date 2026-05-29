@@ -177,7 +177,7 @@ function CommentsSection({project, slug, is_admin}:CommentsSectionProps) {
   if (!loading_comments && comments !== null) {
     comments_section = (
       <div className='flex flex-col pl-2 pr-4'>
-        {comments.map((comment, n) => <Comment is_admin={is_admin} key={n} comment={comment} parent_fetch={fetch_comments}/>)}
+        {comments.map((comment, n) => <Comment is_admin={is_admin} key={n} comment={comment} parent_fetch={fetch_comments} parent_id={null}/>)}
       </div>
     )
   }
