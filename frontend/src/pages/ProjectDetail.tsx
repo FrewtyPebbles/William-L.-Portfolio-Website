@@ -115,7 +115,7 @@ function CommentsSection({project, slug}:CommentsSectionProps) {
         <div className='flex'>
             <div>
                 <div className='flex justify-center pt-2'>
-                    <img onClick={(e) => window.location = login_with_google_link as string & Location} src={user.avatar} alt="" className='h-10 w-10 rounded-full'/>
+                    <img onClick={(e) => window.location = login_with_google_link as string & Location} src={user.avatar} alt="" className='h-10 w-10 rounded-full cursor-pointer'/>
                 </div>
                 <div className='flex flex-col justify-center p-1'>
                     {user.name}
