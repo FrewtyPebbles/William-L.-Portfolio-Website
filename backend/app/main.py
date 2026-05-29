@@ -5,12 +5,12 @@ from app.routes import public, admin
 from starlette.middleware.sessions import SessionMiddleware
 from app.settings import settings
 
-app = FastAPI(root_path="/api")
+app = FastAPI()
 
 init_db()
 
-app.include_router(public.router, prefix="")
-app.include_router(admin.router, prefix="/admin")
+app.include_router(public.router, prefix="/api")
+app.include_router(admin.router, prefix="/api/admin")
 app.add_middleware(
     SessionMiddleware,
     secret_key=settings.SESSION_SECRET,

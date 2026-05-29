@@ -15,10 +15,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket = "global-files-wal-aws"
-    key            = "portfolio-website/terraform.tfstate"
-    region         = "us-west-1"
-    encrypt        = true
+    bucket       = "global-files-wal-aws"
+    key          = "portfolio-website/terraform.tfstate"
+    region       = "us-west-1"
+    encrypt      = true
     use_lockfile = true
   }
 

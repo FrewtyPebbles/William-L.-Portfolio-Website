@@ -78,7 +78,10 @@ resource "aws_iam_policy" "lambda_policy" {
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = [aws_secretsmanager_secret.db_credentials.arn]
+        Resource = [
+          aws_secretsmanager_secret.db_credentials.arn,
+          aws_secretsmanager_secret.google_cloud_credentials.arn
+        ]
       }
     ]
   })

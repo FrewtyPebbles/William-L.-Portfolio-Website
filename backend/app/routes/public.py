@@ -2,8 +2,9 @@ import platform
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
+from sqlalchemy.orm import Session
 from app.auth import GOOGLE_SCOPES, get_current_user
-from app.database import SessionLocal
+from app.database import SessionLocal, get_db
 from app import models
 from app.settings import settings
 import requests
@@ -31,41 +32,34 @@ async def create_comment(
     request: Request,
     project_slug: str,
     new_comment: CreateCommentSchema,
-    user:models.User = Depends(get_current_user)
+    user: models.User = Depends(get_current_user),
+    db: Session = Depends(get_db)
 ):
-    try:
-        with SessionLocal() as db:
+    # validate that parent exists to prevent orphan comments
+    if new_comment.parent_id:
+        parent = db.query(models.Comment).filter(
+            models.Comment.id == new_comment.parent_id,
+            models.Comment.project_slug == project_slug
+        ).first()
 
-            # validate that parent exists to prevent orphan comments
-            if new_comment.parent_id:
-                parent = db.query(models.Comment).filter(
-                    models.Comment.id == new_comment.parent_id,
-                    models.Comment.project_slug == project_slug
-                ).first()
+        if not parent:
+            return {"error": "Parent comment not found"}
 
-                if not parent:
-                    return {"error": "Parent comment not found"}
+    comment = models.Comment(
+        content=new_comment.content,
+        user_id=user.id,
+        project_slug=project_slug,
+        parent_id=new_comment.parent_id
+    )
 
-            comment = models.Comment(
-                content=new_comment.content,
-                user_id=user.id,
-                project_slug=project_slug,
-                parent_id=new_comment.parent_id
-            )
+    db.add(comment)
+    db.commit()
+    db.refresh(comment)
 
-            db.add(comment)
-            db.commit()
-            db.refresh(comment)
-
-            return {
-                "id": comment.id,
-                "content": comment.content
-            }
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to post comment: {e}"
-        )
+    return {
+        "id": comment.id,
+        "content": comment.content
+    }
     
 def recurse_comments(comments: list[models.Comment]):
     ret_comments = []
@@ -89,19 +83,17 @@ def recurse_comments(comments: list[models.Comment]):
 
 
 @router.get("/project/{project_slug}/comments")
-def get_comments(project_slug: str, parent_id: int = None):
-    with SessionLocal() as db:
-
-        comments = (
-            db.query(models.Comment)
-            .filter(
-                models.Comment.project_slug == project_slug,
-                models.Comment.parent_id.is_(parent_id)
-            )
-            .all()
+def get_comments(project_slug: str, parent_id: int = None, db: Session = Depends(get_db)):
+    comments = (
+        db.query(models.Comment)
+        .filter(
+            models.Comment.project_slug == project_slug,
+            models.Comment.parent_id.is_(parent_id)
         )
+        .all()
+    )
 
-        return recurse_comments(comments)
+    return recurse_comments(comments)
 
 @router.get("/login")
 async def login_google_sso(request: Request, return_uri:str = "/"):

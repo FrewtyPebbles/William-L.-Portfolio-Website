@@ -1,9 +1,9 @@
 locals {
-  s3_origin_id = "S3-Origin"
+  s3_origin_id  = "S3-Origin"
   api_origin_id = "API-Origin"
 
-  caching_disabled_policy_id     = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
-  caching_optimized_policy_id    = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+  caching_disabled_policy_id  = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad"
+  caching_optimized_policy_id = "658327ea-f89d-4fab-a63d-7e88639e58f6"
 }
 
 resource "aws_cloudfront_origin_request_policy" "all_viewer_except_host" {
@@ -73,12 +73,12 @@ resource "aws_cloudfront_distribution" "portfolio-cdn" {
 
   # API backend: /api/*
   ordered_cache_behavior {
-    path_pattern           = "/api/*"
-    target_origin_id       = local.api_origin_id
-    viewer_protocol_policy = "redirect-to-https"
-    allowed_methods        = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
-    cached_methods         = ["GET", "HEAD"]
-    cache_policy_id        = local.caching_disabled_policy_id
+    path_pattern             = "/api/*"
+    target_origin_id         = local.api_origin_id
+    viewer_protocol_policy   = "redirect-to-https"
+    allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+    cached_methods           = ["GET", "HEAD"]
+    cache_policy_id          = local.caching_disabled_policy_id
     origin_request_policy_id = aws_cloudfront_origin_request_policy.all_viewer_except_host.id
   }
 

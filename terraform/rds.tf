@@ -19,8 +19,8 @@ resource "aws_rds_cluster" "portfolio_db" {
   db_subnet_group_name = aws_db_subnet_group.db_subnet_group.name
 
   serverlessv2_scaling_configuration {
-    min_capacity             = 0.0 # scale to zero
-    max_capacity             = 1.0
+    min_capacity = 0.0 # scale to zero
+    max_capacity = 1.0
   }
 
   enable_http_endpoint = true # enable Data API

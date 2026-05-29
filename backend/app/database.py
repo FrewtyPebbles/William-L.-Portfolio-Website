@@ -32,9 +32,8 @@ DB_RETRY_BASE_DELAY = 1
 
 
 def init_db():
-    """Create all tables. No-op in prod (managed by RDS/Aurora)."""
-    if IS_DEV:
-        Base.metadata.create_all(bind=engine)
+    """Create all tables if they don't already exist."""
+    Base.metadata.create_all(bind=engine)
 
 
 def get_db():

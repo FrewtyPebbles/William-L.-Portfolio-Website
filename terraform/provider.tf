@@ -4,6 +4,6 @@ provider "aws" {
 }
 # Specific provider for CloudFront Certificate (MUST be us-east-1)
 provider "aws" {
-  alias = "us-east-1"
+  alias  = "us-east-1"
   region = "us-east-1"
 }

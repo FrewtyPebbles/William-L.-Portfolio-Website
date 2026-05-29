@@ -20,9 +20,9 @@ resource "aws_cognito_user_pool" "admin_pool" {
 }
 
 resource "aws_cognito_user_pool_client" "admin_client" {
-  name                = "portfolio-admin-client"
-  user_pool_id        = aws_cognito_user_pool.admin_pool.id
-  generate_secret     = false
+  name            = "portfolio-admin-client"
+  user_pool_id    = aws_cognito_user_pool.admin_pool.id
+  generate_secret = false
 
   explicit_auth_flows = [
     "ALLOW_ADMIN_USER_PASSWORD_AUTH",
@@ -41,10 +41,10 @@ resource "aws_cognito_user_pool_client" "admin_client" {
 }
 
 resource "aws_cognito_user" "admin" {
-  user_pool_id     = aws_cognito_user_pool.admin_pool.id
-  username         = data.dotenv.config.env["COGNITO_ADMIN_USERNAME"]
-  password         = data.dotenv.config.env["COGNITO_ADMIN_PASSWORD"]
-  message_action   = "SUPPRESS"
+  user_pool_id   = aws_cognito_user_pool.admin_pool.id
+  username       = data.dotenv.config.env["COGNITO_ADMIN_USERNAME"]
+  password       = data.dotenv.config.env["COGNITO_ADMIN_PASSWORD"]
+  message_action = "SUPPRESS"
 
   attributes = {
     email = "admin@walofcode.com"

@@ -39,14 +39,14 @@ class Settings(BaseSettings):
             return self.__GOOGLE_CLIENT_SECRETS
         else:
             if not self.__GOOGLE_CLIENT_SECRETS:
-                if settings.GOOGLE_CLOUD_SECRET_ARN:
-                    client = boto3.client("secretsmanager", region_name=settings.S3_REGION)
+                if self.GOOGLE_CLOUD_SECRET_ARN:
+                    client = boto3.client("secretsmanager", region_name=self.S3_REGION)
 
                     try:
-                        response = client.get_secret_value(SecretId=settings.GOOGLE_CLOUD_SECRET_ARN)
+                        response = client.get_secret_value(SecretId=self.GOOGLE_CLOUD_SECRET_ARN)
 
                         if "SecretString" in response:
-                            self.__GOOGLE_CLIENT_SECRETS = response["SecretString"]
+                            self.__GOOGLE_CLIENT_SECRETS = json.loads(response["SecretString"])
                         else:
                             raise RuntimeError("Secret binary format is not supported by this application")
                     except ClientError as e:
