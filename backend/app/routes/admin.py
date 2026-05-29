@@ -48,7 +48,10 @@ def login(body: LoginRequest, response: Response):
         )
     
 @router.get("/check")
-def check_auth_status(admin_user: dict = Depends(get_admin)):
+def check_auth_status():
+    """
+    This is authenticated at the infrastructure level via the api gateway v2 authorizer.
+    """
     return {"authenticated": True}
 
 

@@ -101,7 +101,7 @@ def get_comments(project_slug: str, parent_id: int = None, db: Session = Depends
     return recurse_comments(comments)
 
 @router.delete("/project/{project_slug}/comments")
-def get_comments(project_slug: str, comment_id:int, admin: dict = Depends(get_admin), db: Session = Depends(get_db)):
+def get_comments(project_slug: str, comment_id:int, db: Session = Depends(get_db)):
     try:
         del_statement = (
             delete(models.Comment)

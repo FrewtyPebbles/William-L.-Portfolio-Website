@@ -107,9 +107,17 @@ resource "aws_apigatewayv2_route" "public_catch_all" {
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
-resource "aws_apigatewayv2_route" "admin_proxy" {
+resource "aws_apigatewayv2_route" "delete_comment" {
   api_id             = aws_apigatewayv2_api.main.id
-  route_key          = "ANY /api/admin/{proxy+}"
+  route_key          = "DELETE /api/project/{project_slug}/comments"
+  target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
+  authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt.id
+  authorization_type = "JWT"
+}
+
+resource "aws_apigatewayv2_route" "check_admin" {
+  api_id             = aws_apigatewayv2_api.main.id
+  route_key          = "GET /api/admin/check"
   target             = "integrations/${aws_apigatewayv2_integration.lambda.id}"
   authorizer_id      = aws_apigatewayv2_authorizer.cognito_jwt.id
   authorization_type = "JWT"
