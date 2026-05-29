@@ -5,7 +5,7 @@ export async function isAuthenticated(): Promise<boolean> {
   try {
     const res = await fetch('/api/admin/check', { 
       method: 'GET',
-      credentials: 'same-origin'
+      credentials: 'same-origin' 
     })
     return res.ok
   } catch {
@@ -23,4 +23,5 @@ export async function login(username: string, password: string) {
     const err = await res.json().catch(() => ({ error: 'Login failed' }))
     throw new Error(err.error || 'Login failed')
   }
+
 }

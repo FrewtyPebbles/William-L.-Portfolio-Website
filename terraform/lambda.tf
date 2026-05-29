@@ -15,7 +15,7 @@ resource "aws_lambda_function" "api" {
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_code.key
 
-  source_code_hash = aws_s3_object.lambda_code.checksum_sha256
+  source_code_hash = filebase64sha256("${path.module}/../backend/lambda.zip")
 
   role    = aws_iam_role.lambda_role.arn
   publish = true
@@ -93,7 +93,7 @@ resource "aws_apigatewayv2_authorizer" "cognito_jwt" {
   name             = "cognito-jwt-authorizer"
   api_id           = aws_apigatewayv2_api.main.id
   authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
+  identity_sources = ["$request.header.Cookie.admin_access_token"]
 
   jwt_configuration {
     audience = [aws_cognito_user_pool_client.admin_client.id]
