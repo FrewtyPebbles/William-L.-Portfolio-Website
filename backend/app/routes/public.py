@@ -10,6 +10,10 @@ from app.settings import settings
 import requests
 from google_auth_oauthlib.flow import Flow
 from pydantic import BaseModel, field_validator
+import secrets
+import hashlib
+import base64
+import os
 
 CURRENT_OS = platform.system()
 
@@ -102,20 +106,19 @@ async def login_google_sso(request: Request, return_uri:str = "/"):
         flow = Flow.from_client_config(
             settings.GOOGLE_CLIENT_SECRETS,
             scopes=GOOGLE_SCOPES,
-            autogenerate_code_verifier=False
         )
 
         flow.redirect_uri = settings.GOOGLE_CLIENT_REDIRECT_URI
 
         # generate the authorization URL and state token
-        # We must disable PKCE (stateful code verifiers) since we run in a stateless lambda
         authorization_url, state = flow.authorization_url(
             access_type='offline', 
             include_granted_scopes='true',
-            prompt='select_account',
-            include_code_challenge=False
+            prompt='select_account'
         )
 
+        # Retrieve the auto-generated PKCE verifier from the flow object
+        code_verifier = flow.code_verifier
         
         response = RedirectResponse(url=authorization_url)
         # the google state cookie
@@ -145,6 +148,14 @@ async def login_google_sso(request: Request, return_uri:str = "/"):
             max_age=300,
             samesite="lax", # allows cross site state delivery
             secure=settings.ENVIRONMENT == "prod" # should be secure in prod
+        )
+        response.set_cookie(
+            key="code_verifier",
+            value=code_verifier,
+            httponly=True,
+            max_age=300,
+            samesite="lax",
+            secure=settings.ENVIRONMENT == "prod"
         )
         
         return response
@@ -180,6 +191,7 @@ async def auth_callback_google_sso(request: Request):
     state_from_google = request.query_params.get("state")
     state_from_cookie = request.cookies.get("oauth_state")
     return_uri = request.cookies.get("return_uri")
+    code_verifier = request.cookies.get("code_verifier")
 
     # restrict redirects to local paths only
     if not return_uri or not return_uri.startswith("/"):
@@ -191,13 +203,19 @@ async def auth_callback_google_sso(request: Request):
             status_code=status.HTTP_400_BAD_REQUEST, 
             detail="CSRF Warning: Anti-forgery token state mismatch or expired request."
         )
+    if not code_verifier:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, 
+            detail="Missing PKCE code verifier."
+        )
 
     # explicitly inject the validated state parameter back into the matching verification flow
     flow = Flow.from_client_config(
         settings.GOOGLE_CLIENT_SECRETS,
         scopes=GOOGLE_SCOPES,
-        autogenerate_code_verifier=False
     )
+    # Inject our saved verifier into the flow object manually before fetch_token
+    flow.code_verifier = code_verifier
 
     if settings.ENVIRONMENT == "prod":
         flow.redirect_uri = settings.GOOGLE_CLIENT_REDIRECT_URI
@@ -261,6 +279,7 @@ async def auth_callback_google_sso(request: Request):
         response.delete_cookie("oauth_state")
         response.delete_cookie("state")
         response.delete_cookie("return_uri")
+        response.delete_cookie("code_verifier")
         return response
     except Exception as e:
         print(f"Auth error: {str(e)}")
