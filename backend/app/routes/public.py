@@ -2,8 +2,9 @@ import platform
 
 from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
 from fastapi.responses import RedirectResponse
+from sqlalchemy import delete
 from sqlalchemy.orm import Session
-from app.auth import GOOGLE_SCOPES, get_current_user
+from app.auth import GOOGLE_SCOPES, get_admin, get_current_user
 from app.database import SessionLocal, get_db
 from app import models
 from app.settings import settings
@@ -98,6 +99,24 @@ def get_comments(project_slug: str, parent_id: int = None, db: Session = Depends
     )
 
     return recurse_comments(comments)
+
+@router.delete("/project/{project_slug}/comments")
+def get_comments(project_slug: str, comment_id:int, admin: dict = Depends(get_admin), db: Session = Depends(get_db)):
+    try:
+        del_statement = (
+            delete(models.Comment)
+            .where(
+                models.Comment.project_slug == project_slug,
+                models.Comment.id.is_(comment_id)
+            )
+        )
+
+        db.execute(del_statement)
+        db.commit()
+
+        return {"error":False, "message":f"Deleted comment with id {comment_id}."}
+    except Exception as e:
+        return {"error":True, "message":f"Deleted comment with id {comment_id}. ({e})"}
 
 @router.get("/login")
 async def login_google_sso(request: Request, return_uri:str = "/"):

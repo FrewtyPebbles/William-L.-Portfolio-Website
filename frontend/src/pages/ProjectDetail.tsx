@@ -17,12 +17,14 @@ import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/user-context';
 import { UserData } from '@/types/users';
 import { CommentData } from '@/types/comments';
+import { isAuthenticated } from '@/lib/auth';
 
 export default function ProjectDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [project, setProject] = useState<ProjectConfig | null>(null);
   const [projectAbout, setProjectAbout] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [is_admin, set_is_admin] = useState(false);
 
   useEffect(() => {
     if (!slug) return;
@@ -41,6 +43,9 @@ export default function ProjectDetail() {
         .catch(() => setLoading(false));
       })
       .catch(() => setLoading(false));
+      isAuthenticated().then(authenticated => {
+        set_is_admin(authenticated)
+      })
   }, [slug]);
 
   if (loading) return <FetchingProjectPageSkeleton/>;
@@ -75,7 +80,7 @@ export default function ProjectDetail() {
         </ReactMarkdown>
       </div>
       {/* This is the comments section, it is still in development. */}
-      <CommentsSection project={project} slug={slug}/>
+      <CommentsSection project={project} slug={slug} is_admin={is_admin}/>
     </div>
   );
 }
@@ -83,9 +88,10 @@ export default function ProjectDetail() {
 interface CommentsSectionProps {
   project:ProjectConfig;
   slug?:string
+  is_admin:boolean
 }
 
-function CommentsSection({project, slug}:CommentsSectionProps) {
+function CommentsSection({project, slug, is_admin}:CommentsSectionProps) {
   const [user, loading_user] = useUser()
   const [comment_post_status, set_comment_post_status] = useState<string>("");
   const [comment_content, set_comment_content] = useState<string>("")
@@ -171,7 +177,7 @@ function CommentsSection({project, slug}:CommentsSectionProps) {
   if (!loading_comments && comments !== null) {
     comments_section = (
       <div className='flex flex-col pl-2 pr-4'>
-        {comments.map((comment, n) => <Comment key={n} comment={comment}/>)}
+        {comments.map((comment, n) => <Comment is_admin={is_admin} key={n} comment={comment} parent_fetch={fetch_comments}/>)}
       </div>
     )
   }

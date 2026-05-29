@@ -1,10 +1,10 @@
 import json
 import io
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form
+from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile, Form, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session, joinedload
 from typing import Optional
-from app.auth import admin_login
+from app.auth import admin_login, get_admin
 
 router = APIRouter()
 
@@ -19,18 +19,40 @@ class LoginRequest(BaseModel):
     password: str
 
 @router.post("/login")
-def login(body: LoginRequest):
+def login(body: LoginRequest, response: Response):
     try:
         result = admin_login(body.username, body.password)
+        
+        access_token = result["AccessToken"]
+        expires_in = result["ExpiresIn"]
+
+        response.set_cookie(
+            key="admin_access_token",
+            value=access_token,
+            httponly=True,
+            secure=True,
+            samesite="lax",
+            max_age=expires_in,
+            path="/",
+        )
+
         return {
-            "access_token": result["AccessToken"],
-            "expires_in": result["ExpiresIn"],
-            "token_type": result["TokenType"],
+            "status": "success",
+            "message": "Authentication successful"
         }
+
     except Exception as e:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, 
+            detail="Invalid credentials"
+        )
+    
+@router.get("/check")
+def check_auth_status(admin_user: dict = Depends(get_admin)):
+    return {"authenticated": True}
 
 
 @router.post("/logout")
-def logout():
+def logout(response: Response):
+    response.delete_cookie("admin_access_token")
     return {"ok": True}

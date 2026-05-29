@@ -13,7 +13,7 @@ export default function AdminLogin() {
   async function handleLogin() {
     try {
       await login(username, password)
-      navigate("/admin/portal")
+      navigate("/")
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Login failed")
     }

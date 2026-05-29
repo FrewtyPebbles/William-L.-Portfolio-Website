@@ -3,14 +3,14 @@ import { postComment } from '@/lib/utils'
 import { CommentData } from '@/types/comments'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { Button } from './ui/button'
-import { useComments } from '@/lib/comments-context'
 
 interface Props {
     comment:CommentData
+    is_admin:boolean
+    parent_fetch:(parent_id:number|null) => Promise<void>
 }
 
-export default function Comment({ comment }:Props) {
+export default function Comment({ comment, is_admin, parent_fetch }:Props) {
     const { slug } = useParams<{ slug: string }>();
     const [user, loading_user] = useUser()
     const [comment_post_status, set_comment_post_status] = useState<string>("");
@@ -37,20 +37,43 @@ export default function Comment({ comment }:Props) {
             setLoading(false)
         }
     }
+
+    let admin_control = <></>
+
+    const delete_comment = async () => {
+        let response = await fetch(`/api/project/${slug}/comments?comment_id=${comment.id}`,
+            {
+                method:"DELETE",
+            }
+        )
+        if (response.ok) {
+            await parent_fetch(null)
+        }
+    }
+
+    
+    if (is_admin) {
+        admin_control = <button
+            onClick={_ => delete_comment()}
+            className='w-10 h-10 bg-red-500 border-2 rounded-10 cursor-pointer'
+        >X</button>
+    }
+
     const handleTextareaChange = (event:React.ChangeEvent<HTMLTextAreaElement>) => {
         set_comment_content(event.target.value); // Update state as the user types
     };
 
     let show_hide_replies_button = (
-        comment.replies.length ? 
+        replies.length ? 
             <button onClick={e => set_show_replies(!show_replies)} className='dark:hover:bg-gray-800 cursor-pointer  text-current/70'>
                 {show_replies ? "- Hide Replies" : "↯ Show Replies"}
             </button>
             :
             <></>
     )
+    
 
-    let comment_replies_interface_separator = comment.replies.length ? <span> | </span> : <></>
+    let comment_replies_interface_separator = replies.length ? <span> | </span> : <></>
 
     let comment_replies_interface = (<div>
             {show_hide_replies_button}
@@ -90,7 +113,7 @@ export default function Comment({ comment }:Props) {
                     <div className='flex justify-between'>
                         {comment_replies_interface}
                         <div className='text-right text-current/50'>
-                            Posted {comment.created_at.replace("AM", "a.m.").replace("PM", "p.m.")}
+                            Posted {comment.created_at.replace("AM", "a.m.").replace("PM", "p.m.")} {admin_control}
                         </div>
                     </div>
                     {!loading_user && user && show_input ? 
@@ -153,7 +176,7 @@ export default function Comment({ comment }:Props) {
                         {
                             show_replies ?
                             <div>
-                                {(replies.length ? replies : comment.replies).map((comment, n) => <Comment key={n} comment={comment}/>)}
+                                {(replies.length ? replies : comment.replies).map((comment, n) => <Comment key={n} comment={comment} is_admin={is_admin} parent_fetch={fetch_comments} />)}
                             </div>
                             :
                             <></>
