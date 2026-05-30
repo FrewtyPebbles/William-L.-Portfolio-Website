@@ -55,7 +55,6 @@ This is my cost-effective, statically generated, and serverless full stack portf
 
 # To Do List
 
- - Simplify authorization by adding Google Auth client as a federated identity provider to cognito
  - Add live demos of projects as microservices
  - Add automatic inappropriate comment blocking using Amazon Comprehend
  - Add user management admin portal for blocking users from commenting
